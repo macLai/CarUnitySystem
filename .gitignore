@@ -37,4 +37,5 @@ Makefile*
 CMakeLists.txt.user
 
 venv
-
+*vcxproj*
+Debug
