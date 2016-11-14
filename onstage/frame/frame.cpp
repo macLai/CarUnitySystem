@@ -26,7 +26,7 @@ void Frame::initialize(QString displayKind, int x, int y)
 	engine.rootObjects().first()->setProperty("x", x);
 	engine.rootObjects().first()->setProperty("y", y);
 
-	QObject *loader = engine.rootObjects().first()->findChild<QObject*>("frameLoader");
+	QObject *loader = engine.rootObjects().first();
 	connect(loader, SIGNAL(loaded()), this, SLOT(onFrameLoaded()));
 
 	//qDebug() << QObject( engine.rootObjects()[0]).findChild("loader");
@@ -49,7 +49,8 @@ Frame* Frame::getInstance()
 
 void Frame::updateFrame(QString frame, QString modes)
 {
-	QObject *loader = engine.rootObjects().first()->findChild<QObject*>("frameLoader");
+	QString test = engine.rootObjects().first()->property("target").toString();
+	QObject *loader = engine.rootObjects().first()->findChild<QObject*>(engine.rootObjects().first()->property("target").toString());
 
 	if (selectedFrame != frame)
 	{
@@ -85,7 +86,7 @@ void Frame::frameChanged(QString message)
 
 void Frame::onFrameLoaded()
 {
-	QObject *loader = engine.rootObjects().first()->findChild<QObject*>("frameLoader");
+	QObject *loader = engine.rootObjects().first()->findChild<QObject*>(engine.rootObjects().first()->property("target").toString());
 	if (displayKind == "hud")
 	{
 		engine.rootContext()->setContextProperty("car", WSocket::getInstance());

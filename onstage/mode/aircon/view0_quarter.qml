@@ -7,4 +7,10 @@ Item {
 	Rectangle { anchors.fill: parent; color: "pink" }
 	Text { text: "aircon_view0_quarter.qml" }
 	// transform: Scale { origin.x: 0; origin.y: 0; xScale: 1}
+
+	property var isLoaded: false
+	Component.onCompleted: {
+		isLoaded = true;
+		frame.loadCheck();
+	}
 }

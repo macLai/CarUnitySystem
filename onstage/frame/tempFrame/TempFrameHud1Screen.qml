@@ -4,7 +4,7 @@ import QtMultimedia 5.6
 
 Item {
 
-Item {
+Video {
 	id: video
 	objectName: "video"
 	x: 0

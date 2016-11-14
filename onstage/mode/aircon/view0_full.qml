@@ -6,4 +6,10 @@ Item {
 	height: 200
 	Rectangle { anchors.fill: parent; color: "pink" }
 	Text { text: "aircon_view0_full.qml" }
+
+	property var isLoaded: false
+	Component.onCompleted: {
+		isLoaded = true;
+		frame.loadCheck();
+	}
 }

@@ -4,4 +4,10 @@ import QtQuick.Controls 1.5
 Item {
 	Rectangle { anchors.fill: parent; color: "green" }
 	Text { text: "audio_view0_half.qml" }
+
+	property var isLoaded: false
+	Component.onCompleted: {
+		isLoaded = true;
+		frame.loadCheck();
+	}
 }

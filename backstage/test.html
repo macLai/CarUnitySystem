@@ -57,16 +57,9 @@
         });
 
         firstChild.addEventListener('click', function() {
-            // var imgX = '0';
-            // var animationInterval = setInterval(function() {
-            //     if (imgX == '-18') imgX = '0';
-            //     else imgX = '-18';
-            //     $('#you_location_img').css('background-position', imgX + 'px 0px');
-            // }, 500);
             var latlng = new google.maps.LatLng(faisalabad);
             marker.setPosition(latlng);
             map.setCenter(latlng);
-            // clearInterval(animationInterval);
             $('#you_location_img').css('background-position', '-144px 0px');
             currentmap = true;
 
