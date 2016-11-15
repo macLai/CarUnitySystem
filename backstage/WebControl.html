@@ -1,0 +1,29 @@
+<script src="./jquery.min.js"></script>
+<script type="text/javascript">
+	function modeControl(modeon, mode) {
+		$.post("webcontrol",
+			{
+				'action': modeon,
+				'mode': mode
+			}
+		);
+	}
+	function carControl(status) {
+		$.post("webcontrol",
+			{
+				'action': status
+			}
+		);
+	}
+</script>
+
+<button type="button" onclick="modeControl('modeon', 'crossroad');">modeon crossroad</button> 
+<button type="button" onclick="modeControl('modeoff', 'crossroad');">modeoff crossroad</button> <br/>
+<button type="button" onclick="modeControl('modeon', 'phone');">modeon phone</button> 
+<button type="button" onclick="modeControl('modeoff', 'phone');">modeoff phone</button> <br/>
+<button type="button" onclick="modeControl('modeon', 'camera');">modeon camera</button> 
+<button type="button" onclick="modeControl('modeoff', 'camera');">modeoff camera</button> <br/>
+<button type="button" onclick="modeControl('modeon', 'opendoor');">modeon opendoor</button> 
+<button type="button" onclick="modeControl('modeoff', 'opendoor');">modeoff opendoor</button> <br/>
+<button type="button" onclick="carControl('start');">start car</button> 
+<button type="button" onclick="carControl('stop');">stop car</button> <br/>

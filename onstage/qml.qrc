@@ -12,11 +12,18 @@
         <file>mode/audio/view0_full.qml</file>
         <file>mode/audio/view0_half.qml</file>
         <file>mode/audio/view0_quarter.qml</file>
-        <file>mode/aircon/view0_full.qml</file>
-        <file>mode/aircon/view0_half.qml</file>
-        <file>mode/aircon/view0_quarter.qml</file>
+        <file>mode/camera/view0_full.qml</file>
+        <file>mode/camera/view0_half.qml</file>
+        <file>mode/camera/view0_quarter.qml</file>
+        <file>mode/crossroad/view0_full.qml</file>
+        <file>mode/crossroad/view0_half.qml</file>
+        <file>mode/crossroad/view0_quarter.qml</file>
         <file>mode/navi/view0_full.qml</file>
         <file>mode/navi/view0_half.qml</file>
         <file>mode/navi/view0_quarter.qml</file>
+        <file>mode/opendoor/view0_half.qml</file>
+        <file>mode/phone/view0_full.qml</file>
+        <file>mode/phone/view0_half.qml</file>
+        <file>mode/phone/view0_quarter.qml</file>
     </qresource>
 </RCC>

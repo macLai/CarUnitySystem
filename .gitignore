@@ -39,3 +39,5 @@ CMakeLists.txt.user
 venv
 *vcxproj*
 Debug
+.vs
+Win32

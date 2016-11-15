@@ -26,8 +26,14 @@ HEADERS  +=     frame/frame.h \
                 mode/navi/naviDB.h \
                 mode/audio/audio.h \
                 mode/audio/audioDB.h \
-                mode/aircon/aircon.h \
-                mode/aircon/airconDB.h \
+                mode/camera/camera.h \
+                mode/camera/cameraDB.h \
+                mode/crossroad/crossroad.h \
+                mode/crossroad/crossroadDB.h \
+                mode/opendoor/opendoor.h \
+                mode/opendoor/opendoorDB.h \
+                mode/phone/phone.h \
+                mode/phone/phoneDB.h \
                 socket/server_link.h
 
 RESOURCES += qml.qrc

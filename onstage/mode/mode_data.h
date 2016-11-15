@@ -22,7 +22,10 @@ public:
 
 	static const QString MODEID_AUDIO;
 	static const QString MODEID_NAVI;
-	static const QString MODEID_AIRCON;
+	static const QString MODEID_CAMERA;
+	static const QString MODEID_CROSSROAD;
+	static const QString MODEID_OPENDOOR;
+	static const QString MODEID_PHONE;
 
 private:
 	static ModeData *it;
