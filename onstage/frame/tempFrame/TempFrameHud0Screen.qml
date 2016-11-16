@@ -11,7 +11,7 @@ Video {
 	y: 0
 	width: 1280
 	height: 720
-	source: 'file:///C:/test/car.mp4'
+	source: '../../pic/car.mp4'
 	autoPlay: true
 	onStopped: play()
 

@@ -41,3 +41,7 @@ venv
 Debug
 .vs
 Win32
+dist
+build
+*.spec
+*.exe
