@@ -10,14 +10,13 @@ using namespace std;
 class Opendoor :public ModeBase
 {
 public:
-	Opendoor(QString modeID) :ModeBase(modeID, opendoorDB) {};
-	static Opendoor *getInstance(QString modeID)
+	Opendoor(QString modeID, QObject *loader) :ModeBase(modeID, opendoorDB, loader) {};
+	static Opendoor *getInstance(QString modeID, QObject *loader)
 	{
 		if(it != NULL) return it;
-		it =new Opendoor(modeID);
+		it =new Opendoor(modeID, loader);
 		return it;
 	};
-	
 
 private:
 	static Opendoor *it;

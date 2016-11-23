@@ -1,6 +1,7 @@
 #include "mode_enter.h"
 #include "mode_data.h"
 #include "../frame/frame_data.h"
+#include "../frame/frame.h"
 #include <qobject.h>
 #include <qstring.h>
 #include <qlist.h>
@@ -22,29 +23,21 @@ void ModeEnter::initialize()
 	ModeData::getInstance();
 }
 
-void ModeEnter::updateMode(QObject* target, QString activeModeListStr)
+void ModeEnter::updateMode(QString activeModeListStr)
 {
 	QStringList activeModeList = activeModeListStr.split("|");
 
 	ModeData *modeData = ModeData::getInstance();
 	const int len = activeModeList.length();
-	QList<QString> activeModeListBefore = modeData->getActiveModeList();
 	
-
+	
 	for (int i = 0; i < len; i++)
 	{
+		QRect rect = modeData->getModeSize(Frame::getInstance()->getDisplayKind(), len, i);
 
-		QObject *modeTarget = target->findChild<QObject*>("mode" + QString::number(i));
-		if (modeTarget == NULL) continue;
-
-		modeData->setModeStatus(activeModeList[i], true, modeTarget);
+		ModeBase * target = modeData->getModeInstance(activeModeList[i]);
+		if( target != NULL ) target->moveToPos(rect);
 	}
 
-	for (int i = 0; i < activeModeListBefore.length(); i++)
-	{
-		if (!activeModeList.contains(activeModeListBefore[i]))
-		{
-			modeData->setModeStatus(activeModeListBefore[i], false, NULL);
-		}
-	}
+	modeData->clearAllMode(activeModeList);
 }

@@ -11,7 +11,7 @@ public:
 	ModeEnter(){};
 	static ModeEnter *getInstance();
 	void initialize();
-	void updateMode(QObject* target, QString activeModeListStr);
+	void updateMode(QString activeModeListStr);
 private:
 	static ModeEnter *it;
 };

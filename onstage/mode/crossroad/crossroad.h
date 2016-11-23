@@ -10,11 +10,11 @@ using namespace std;
 class Crossroad :public ModeBase
 {
 public:
-	Crossroad(QString modeID) :ModeBase(modeID, crossroadDB) {};
-	static Crossroad *getInstance(QString modeID)
+	Crossroad(QString modeID, QObject *loader) :ModeBase(modeID, crossroadDB, loader) {};
+	static Crossroad *getInstance(QString modeID, QObject *loader)
 	{
 		if(it != NULL) return it;
-		it =new Crossroad(modeID);
+		it =new Crossroad(modeID, loader);
 		return it;
 	};
 	

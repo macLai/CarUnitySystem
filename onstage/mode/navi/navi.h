@@ -10,11 +10,11 @@ using namespace std;
 class Navi :public ModeBase
 {
 public:
-	Navi(QString modeID) :ModeBase(modeID, naviDB) {};
-	static Navi *getInstance(QString modeID)
+	Navi(QString modeID, QObject *loader) :ModeBase(modeID, naviDB, loader) {};
+	static Navi *getInstance(QString modeID, QObject *loader)
 	{
 		if(it != NULL) return it;
-		it =new Navi(modeID);
+		it =new Navi(modeID, loader);
 		return it;
 	};
 	

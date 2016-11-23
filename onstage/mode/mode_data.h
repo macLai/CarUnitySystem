@@ -7,6 +7,9 @@
 #include <qobject.h>
 #include <qlist.h>
 #include "mode_base.h"
+#include <qjsonobject.h>
+#include <qrect.h>
+#include <qstringlist.h>
 using namespace std;
 
 class ModeData
@@ -15,9 +18,8 @@ public:
 	static ModeData* getInstance();
 	ModeData();
 	ModeBase *getModeInstance(QString modeID);
-	bool isModeActive(QString modeID);
-	QList<QString> getActiveModeList();
-	bool setModeStatus(QString modeID, bool status, QObject* target);
+	QRect getModeSize(QString displayKind, int len, int pos);
+	void clearAllMode(QStringList ActiveModeList);
 
 
 	static const QString MODEID_AUDIO;
@@ -30,7 +32,8 @@ public:
 private:
 	static ModeData *it;
 	QMap<QString, ModeBase*> modeList;
-	QMap<QString, bool> modeStatus;
+
+	static const QString modeSize;
 };
 
 #endif

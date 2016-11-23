@@ -1,14 +1,9 @@
 <RCC>
     <qresource prefix="/">
         <file>frame/main.qml</file>
-        <file>frame/tempFrame/TempFrameNavi1Screen.qml</file>
-        <file>frame/tempFrame/TempFrameNavi2Screen.qml</file>
-        <file>frame/tempFrame/TempFrameNavi3Screen.qml</file>
-        <file>frame/tempFrame/TempFrameMeta1Screen.qml</file>
-        <file>frame/tempFrame/TempFrameMeta2Screen.qml</file>
-        <file>frame/tempFrame/TempFrameMeta3Screen.qml</file>
-        <file>frame/tempFrame/TempFrameHud0Screen.qml</file>
-        <file>frame/tempFrame/TempFrameHud1Screen.qml</file>
+        <file>frame/tempFrame/TempFrameNaviScreen.qml</file>
+        <file>frame/tempFrame/TempFrameMetaScreen.qml</file>
+        <file>frame/tempFrame/TempFrameHudScreen.qml</file>
         <file>mode/audio/view0_full.qml</file>
         <file>mode/audio/view0_half.qml</file>
         <file>mode/audio/view0_quarter.qml</file>

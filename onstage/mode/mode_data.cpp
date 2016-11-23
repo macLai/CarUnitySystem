@@ -5,6 +5,8 @@
 #include "crossroad\crossroad.h"
 #include "opendoor\opendoor.h"
 #include "phone\phone.h"
+#include <qqmlapplicationengine.h>
+#include "../frame/frame.h"
 
 const QString ModeData::MODEID_AUDIO = "audio";
 const QString ModeData::MODEID_NAVI = "navi";
@@ -12,6 +14,33 @@ const QString ModeData::MODEID_CAMERA = "camera";
 const QString ModeData::MODEID_CROSSROAD = "crossroad";
 const QString ModeData::MODEID_OPENDOOR = "opendoor";
 const QString ModeData::MODEID_PHONE = "phone";
+
+const QString ModeData::modeSize ( "{ \
+	\"navi1\": { \
+		\"0\": {\"x\": 0, \"y\": 0, \"width\": 800, \"height\": 480} \
+	}, \
+	\"navi2\": { \
+		\"0\": {\"x\": 0, \"y\": 0, \"width\": 400, \"height\": 480}, \
+		\"1\": {\"x\": 400, \"y\": 0, \"width\": 400, \"height\": 480} \
+	}, \
+	\"navi3\": { \
+		\"0\": {\"x\": 0, \"y\": 0, \"width\": 400, \"height\": 480}, \
+		\"1\": {\"x\": 400, \"y\": 0, \"width\": 400, \"height\": 240}, \
+		\"2\": {\"x\": 400, \"y\": 240, \"width\": 400, \"height\": 240} \
+	}, \
+	\"meta1\": { \
+		\"0\": {\"x\": 112, \"y\": 60, \"width\": 800, \"height\": 480} \
+	}, \
+	\"meta2\": { \
+		\"0\": {\"x\": 112, \"y\": 60, \"width\": 400, \"height\": 480}, \
+		\"1\": {\"x\": 512, \"y\": 60, \"width\": 400, \"height\": 480} \
+	}, \
+	\"meta3\": { \
+		\"0\": {\"x\": 112, \"y\": 60, \"width\": 400, \"height\": 480}, \
+		\"1\": {\"x\": 512, \"y\": 60, \"width\": 400, \"height\": 240}, \
+		\"2\": {\"x\": 512, \"y\": 300, \"width\": 400, \"height\": 240} \
+	} \
+}" );
 
 ModeData* ModeData::it = NULL;
 
@@ -26,18 +55,38 @@ ModeBase *ModeData::getModeInstance(QString modeID)
 
 ModeData::ModeData()
 {
-	modeList[MODEID_AUDIO] = Audio::getInstance(MODEID_AUDIO);
-	modeStatus[MODEID_AUDIO] = false;
-	modeList[MODEID_CAMERA] = Camera::getInstance(MODEID_CAMERA);
-	modeStatus[MODEID_CAMERA] = false;
-	modeList[MODEID_NAVI] = Navi::getInstance(MODEID_NAVI);
-	modeStatus[MODEID_NAVI] = false;
-	modeList[MODEID_CROSSROAD] = Crossroad::getInstance(MODEID_CROSSROAD);
-	modeStatus[MODEID_CROSSROAD] = false;
-	modeList[MODEID_PHONE] = Phone::getInstance(MODEID_PHONE);
-	modeStatus[MODEID_PHONE] = false;
-	modeList[MODEID_OPENDOOR] = Opendoor::getInstance(MODEID_OPENDOOR);
-	modeStatus[MODEID_OPENDOOR] = false;
+	QQmlApplicationEngine* engine = Frame::getInstance()->getEngine();
+
+	QObject *loader = engine->rootObjects().first()->findChild<QObject*>(MODEID_AUDIO);
+	if (loader != NULL) {
+		modeList[MODEID_AUDIO] = Audio::getInstance(MODEID_AUDIO, loader);
+	}
+
+	loader = engine->rootObjects().first()->findChild<QObject*>(MODEID_CAMERA);
+	if (loader != NULL) {
+		modeList[MODEID_CAMERA] = Camera::getInstance(MODEID_CAMERA, loader);
+	}
+
+	loader = engine->rootObjects().first()->findChild<QObject*>(MODEID_NAVI);
+	if (loader != NULL) {
+		modeList[MODEID_NAVI] = Navi::getInstance(MODEID_NAVI, loader);
+	}
+
+	loader = engine->rootObjects().first()->findChild<QObject*>(MODEID_CROSSROAD);
+	if (loader != NULL) {
+		modeList[MODEID_CROSSROAD] = Crossroad::getInstance(MODEID_CROSSROAD, loader);
+	}
+
+	loader = engine->rootObjects().first()->findChild<QObject*>(MODEID_PHONE);
+	if (loader != NULL) {
+		modeList[MODEID_PHONE] = Phone::getInstance(MODEID_PHONE, loader);
+	}
+
+	loader = engine->rootObjects().first()->findChild<QObject*>(MODEID_OPENDOOR);
+	if (loader != NULL) {
+		modeList[MODEID_OPENDOOR] = Opendoor::getInstance(MODEID_OPENDOOR, loader);
+	}
+
 }
 
 ModeData* ModeData::getInstance()
@@ -49,53 +98,33 @@ ModeData* ModeData::getInstance()
 	return it;
 }
 
-QList<QString> ModeData::getActiveModeList()
+QRect ModeData::getModeSize(QString displayKind, int len, int pos)
 {
-	QList<QString> ans;
-	QMapIterator<QString, bool> i(modeStatus);
+	QRect rect(-1, -1, 1, 1);
+	QJsonObject data = QJsonDocument::fromJson(modeSize.toUtf8()).object();
+	if (data.contains(displayKind + QString::number(len)))
+	{
+		QJsonObject dataNum = data[displayKind + QString::number(len)].toObject();
+		if (dataNum.contains(QString::number(pos)))
+		{
+			rect.setX(dataNum[QString::number(pos)].toObject()["x"].toInt());
+			rect.setY(dataNum[QString::number(pos)].toObject()["y"].toInt());
+			rect.setWidth(dataNum[QString::number(pos)].toObject()["width"].toInt());
+			rect.setHeight(dataNum[QString::number(pos)].toObject()["height"].toInt());
+		}
+	}
+	return rect;
+}
+
+void ModeData::clearAllMode(QStringList ActiveModeList)
+{
+	QMapIterator<QString, ModeBase*> i(modeList);
 	while (i.hasNext())
 	{
 		i.next();
-		if (i.value()) ans << i.key();
-	}
-	return ans;
-}
-
-bool ModeData::isModeActive(QString modeID)
-{
-	if (modeStatus.contains(modeID))
-	{
-		return modeStatus[modeID];
-	}
-	else return false;
-}
-
-bool ModeData::setModeStatus(QString modeID, bool status, QObject* target)
-{
-	if (!modeStatus.contains(modeID)) return false;
-	else if (modeStatus[modeID] == false && status == false) return true;
-	else if (modeStatus[modeID] == true && status == true)
-	{
-		if (modeList[modeID]->moveToPos(target)) return true;
-		else return false;
-	}
-	else if (modeStatus[modeID] == false && status == true)
-	{
-		if (modeList[modeID]->startMode(target))
+		if (!ActiveModeList.contains(i.key()))
 		{
-			modeStatus[modeID] = status;
-			return true;
+			i.value()->endMode();
 		}
-		else return false;
 	}
-	else if (modeStatus[modeID] == true && status == false)
-	{
-		if (modeList[modeID]->endMode())
-		{
-			modeStatus[modeID] = status;
-			return true;
-		}
-		else return false;
-	}
-	return false;
 }

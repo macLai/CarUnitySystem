@@ -10,11 +10,11 @@ using namespace std;
 class Phone :public ModeBase
 {
 public:
-	Phone(QString modeID) :ModeBase(modeID, phoneDB) {};
-	static Phone *getInstance(QString modeID)
+	Phone(QString modeID, QObject *loader) :ModeBase(modeID, phoneDB, loader) {};
+	static Phone *getInstance(QString modeID, QObject *loader)
 	{
 		if(it != NULL) return it;
-		it =new Phone(modeID);
+		it =new Phone(modeID, loader);
 		return it;
 	};
 	

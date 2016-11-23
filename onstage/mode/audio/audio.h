@@ -10,11 +10,11 @@ using namespace std;
 class Audio :public ModeBase
 {
 public:
-	Audio(QString modeID) :ModeBase(modeID, audioDB) {};
-	static Audio *getInstance(QString modeID)
+	Audio(QString modeID, QObject *loader) :ModeBase(modeID, audioDB, loader) {};
+	static Audio *getInstance(QString modeID, QObject *loader)
 	{
 		if(it != NULL) return it;
-		it =new Audio(modeID);
+		it =new Audio(modeID, loader);
 		return it;
 	};
 	

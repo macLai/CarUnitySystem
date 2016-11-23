@@ -10,11 +10,11 @@ using namespace std;
 class Camera :public ModeBase
 {
 public:
-	Camera(QString modeID) :ModeBase(modeID, cameraDB) {};
-	static Camera *getInstance(QString modeID)
+	Camera(QString modeID, QObject *loader) :ModeBase(modeID, cameraDB, loader) {};
+	static Camera *getInstance(QString modeID, QObject *loader)
 	{
 		if(it != NULL) return it;
-		it =new Camera(modeID);
+		it =new Camera(modeID, loader);
 		return it;
 	};
 	

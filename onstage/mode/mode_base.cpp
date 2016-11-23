@@ -2,55 +2,89 @@
 #include "modeDB.h"
 #include <qvariant.h>
 #include <QDebug>
+#include <qpropertyanimation.h>
 
-ModeBase::ModeBase(QString mode, QString modeDbData) :modeID(mode), currentView("")
+ModeBase::ModeBase(QString mode, QString modeDbData, QObject *loader) :modeID(mode), currentView(""), displayTarget(loader)
 {
+	showAnime = new QPropertyAnimation(loader, "opacity");
+	showAnime->setDuration(500);
+	showAnime->setEndValue(1);
+	hideAnime = new QPropertyAnimation(loader, "opacity");
+	hideAnime->setDuration(500);
+	hideAnime->setEndValue(0);
+
 	viewDB = new ModeDB(modeDbData);
-	size = QSize(-1, -1);
+	pos = QRect(0, 0, 400, 480);
+	startMode();
 }
 
-bool ModeBase::startMode(QObject* target)
+bool ModeBase::startMode()
 {
-	displayTarget = target;
-	size.setWidth(target->property("width").toInt());
-	size.setHeight(target->property("height").toInt());
 	return transTo("default");
 };
 
 bool ModeBase::transTo(QString target)
 {
-	if (!size.isValid()) return false;
+	displayTarget->setProperty("opacity", 1);
+	if (!pos.size().isValid()) return false;
 	if (displayTarget == NULL) return false;
 
-	QString viewPath = viewDB->getView(target, size.width(), size.height());
+	QString viewPath = viewDB->getView(target, pos.width(), pos.height());
 	if (viewPath == NULL) return false;
 
-	QObject *loader = displayTarget->findChild<QObject *>(QString(), Qt::FindDirectChildrenOnly);
-	if (loader == 0) return false;
-
-	if (!loader->setProperty("source", viewPath)) return false;
+	if (!displayTarget->setProperty("source", viewPath)) return false;
 
 	
 	currentView = target;
 	return true;
 }
 
-bool ModeBase::moveToPos(QObject* target)
+bool ModeBase::moveToPos(QRect rect)
 {
-	if (1)
+	if (pos == rect && displayTarget->property("opacity") == 1) return true;
+
+	pos = rect;
+	if (displayTarget->property("opacity") != 0)
 	{
-		displayTarget = target;
-		size.setWidth(target->property("width").toInt());
-		size.setHeight(target->property("height").toInt());
-		return transTo(currentView);
+		connect(hideAnime, SIGNAL(finished()), this, SLOT(setProperty()));
+		hideAnime->start();
+	}
+	else
+	{
+		setProperty();
 	}
 	return true;
 }
 
 bool ModeBase::endMode()
 {
-	displayTarget = NULL;
-	currentView = "";
-	size = QSize(-1, -1);
+	hideAnime->start();
+	return true;
+}
+
+bool ModeBase::setProperty()
+{
+	disconnect(hideAnime, SIGNAL(finished()), this, SLOT(setProperty()));
+
+	int x = displayTarget->property("x").toInt();
+	int y = displayTarget->property("y").toInt();
+	int width = displayTarget->property("width").toInt();
+	int height = displayTarget->property("height").toInt();
+
+	if (pos.width() != width || pos.height() != height)
+	{
+		displayTarget->setProperty("width", pos.width());
+		displayTarget->setProperty("height", pos.height());
+
+		QString viewPath = viewDB->getView(currentView, pos.width(), pos.height());
+		if (viewPath != NULL)
+		{
+			displayTarget->setProperty("source", viewPath);
+		}
+	}
+	displayTarget->setProperty("x", pos.x());
+	displayTarget->setProperty("y", pos.y());
+
+	showAnime->start();
 	return true;
 }
