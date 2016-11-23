@@ -19,16 +19,15 @@ class Frame:public QObject
 public:
 	static Frame *getInstance();
 	void initialize(QString displayKind, int x, int y);
-	void updateFrame(QString frame, QString modes);
+	QQmlApplicationEngine* getEngine();
+	QString getDisplayKind();
 private:
 	static Frame *it;
-    Frame() :QObject(0), isInitialized(false), selectedFrame(""), displayKind(""), modes(""){}
+    Frame() :QObject(0), isInitialized(false), displayKind(""){}
 
 	QQmlApplicationEngine engine;
 	bool isInitialized;
-	QString selectedFrame;
 	QString displayKind;
-	QString modes;
 
 public slots:
 	void frameChanged(QString message);

@@ -7,17 +7,20 @@
 #include <qstring.h>
 #include "modeDB.h"
 #include <qsize.h>
+#include <qrect.h>
+#include <qpropertyanimation.h>
 using namespace std;
 
-class ModeBase
+class ModeBase:public QObject
 {
+	Q_OBJECT
 public:
-	bool moveToPos(QObject* target);
-	bool startMode(QObject* target);
+	bool moveToPos(QRect rect);
+	bool startMode();
 	bool endMode();
 
 protected:
-	ModeBase(QString mode, QString modeDbData);
+	ModeBase(QString mode, QString modeDbData, QObject *loader);
 	
 	ModeDB *viewDB;
 
@@ -28,7 +31,12 @@ private:
 	QString modeID;
 	QObject* displayTarget;
 	QString currentView;
-	QSize size;
+	QRect pos;
+	QPropertyAnimation *showAnime;
+	QPropertyAnimation *hideAnime;
+
+private slots:
+	bool setProperty();
 };
 
 

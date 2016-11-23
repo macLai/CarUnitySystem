@@ -9,9 +9,9 @@ using namespace std;
 class FrameData
 {
 public:
-	static bool getFrameSize(QString displayKind, int &width, int &height);
+	static void getDisplaySize(QString displayKind, int &width, int &height);
 	static QString getFrameLoader(QString frameNo);
-	static const int maxOfModeNumInFrame;
+	static int maxOfModeNumInFrame;
 
 private:
 	static const QString displaySize;
