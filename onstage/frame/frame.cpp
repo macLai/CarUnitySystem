@@ -16,7 +16,7 @@ void Frame::initialize(QString displayKind, int x, int y)
 
 	this->displayKind = displayKind;
 
-	engine.load(QUrl(QStringLiteral("frame/main.qml")));
+	engine.load(QUrl("qrc:///main.qml"));
 
 
 	int width, height;

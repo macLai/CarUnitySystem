@@ -13,7 +13,7 @@
         margin: 0px;
     }
     </style>
-    <script src="./mapapi.js"></script>
+    <script src="https://maps.googleapis.com/maps/api/js"></script>
     <script src="./jquery.min.js"></script>
     <script>
     var map;
@@ -127,6 +127,11 @@
 
     $(document).ready(function(e) {
         initMap();
+        $(window).resize( function() {
+            var center = map.getCenter();
+            google.maps.event.trigger(map, "resize");
+            map.setCenter(center); 
+        });
     });
     </script>
 </head>

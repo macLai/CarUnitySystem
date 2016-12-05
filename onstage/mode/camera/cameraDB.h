@@ -6,9 +6,9 @@
 const static QString cameraDB("{ \
 	\"default\": \"view0\", \
     \"view0\": { \
-        \"800|480\": \"mode/camera/view0_full.qml\", \
-        \"400|480\": \"mode/camera/view0_full.qml\", \
-        \"400|240\": \"mode/camera/view0_full.qml\" \
+        \"800|480\": \"qrc:///camera/view0_full.qml\", \
+        \"400|480\": \"qrc:///camera/view0_full.qml\", \
+        \"400|240\": \"qrc:///camera/view0_full.qml\" \
     } \
 }");
 

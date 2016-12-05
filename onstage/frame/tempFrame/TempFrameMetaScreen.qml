@@ -9,13 +9,13 @@ Item {
 	}
 
 	Image {
-		source: "../../pic/BK_L.png"
+		source: "qrc:///BK_L.png"
 		x: 0
 		y: 120
 	}
 
 	Image {
-		source: "../../pic/BK_R.png"
+		source: "qrc:///BK_R.png"
 		x: 912
 		y: 120
 	}

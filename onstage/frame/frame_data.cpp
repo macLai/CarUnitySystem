@@ -10,9 +10,9 @@ const QString FrameData::displaySize ( "{ \
 }" );
 
 const QString FrameData::displayFrame ( "{ \
-	\"navi\": \"frame/tempFrame/TempFrameNaviScreen.qml\", \
-	\"meta\": \"frame/tempFrame/TempFrameMetaScreen.qml\", \
-	\"hud\": \"frame/tempFrame/TempFrameHudScreen.qml\" \
+	\"navi\": \"qrc:///TempFrameNaviScreen.qml\", \
+	\"meta\": \"qrc:///TempFrameMetaScreen.qml\", \
+	\"hud\": \"qrc:///TempFrameHudScreen.qml\" \
 }" );
 
 void FrameData::getDisplaySize(QString displayKind, int &width, int &height)

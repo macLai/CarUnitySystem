@@ -4,7 +4,7 @@ import QtWebView 1.1
 
 Item {
 	Image {
-		source: "../../pic/camera.jpg"
+		source: "qrc:///camera.jpg"
 		anchors.fill: parent
 	}
 }

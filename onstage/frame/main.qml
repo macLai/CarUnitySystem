@@ -1,7 +1,6 @@
 import QtQuick 2.7
 import QtQuick.Controls 1.5
 import QtQuick.Dialogs 1.2
-import QtWebView 1.1
 
 ApplicationWindow {
 	id: window
@@ -19,10 +18,4 @@ ApplicationWindow {
 		objectName: "frameLoader"
 		anchors.fill: parent
 	}
-
-	// Rectangle { width: 80; height: 50; color: "red" }
-	// WebView {
- //      anchors.fill: parent
- //      url: Qt.resolvedUrl("http://localhost:8888/map")
-	// }
 }

@@ -3,6 +3,6 @@ import QtQuick.Controls 1.5
 
 Item {
 	Image {
-		source: "../../pic/Audio.png"
+		source: "qrc:///Audio.png"
 	}
 }
