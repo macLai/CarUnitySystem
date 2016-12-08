@@ -19,6 +19,7 @@ public:
 
 public slots:
 	void reviceMessage(QString message);
+	void sendMessageFromQml(QString data);
 
 signals:
 	void frameChanged(QString message);

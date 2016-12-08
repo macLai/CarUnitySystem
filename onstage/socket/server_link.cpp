@@ -50,3 +50,8 @@ void WSocket::sendMenssage(QString data)
 {
 	sendTextMessage(data);
 }
+
+void WSocket::sendMessageFromQml(QString data)
+{
+	sendTextMessage(data);
+}

@@ -28,6 +28,7 @@
         <file alias="HF_1_4.png">pic/HF_1_4.png</file>
         <file alias="Navi_1_2.png">pic/Navi_1_2.png</file>
         <file alias="Navi_1_4.png">pic/Navi_1_4.png</file>
-        <file alias="move-pointer-24.png">pic/move-pointer-24.png</file>
+        <file alias="move-option-16.png">pic/move-option-16.png</file>
+        <file alias="pin-16.png">pic/pin-16.png</file>
     </qresource>
 </RCC>

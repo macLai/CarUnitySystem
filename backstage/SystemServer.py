@@ -24,7 +24,7 @@ FRAME = {
 }
 MODE = {
     'opendoor': {
-        'priority': 10,
+        'proirity': 10,
         'display': '110'
     },
     'camera': {
@@ -64,6 +64,10 @@ ACTIVE_MODE = {
     }
 }
 ALL_MODE = ['audio', 'navi']
+LOCK_MAP = -1
+META_MIN = False
+NAVI_MIN = False
+
 
 def randomMode():
     pass
@@ -81,6 +85,8 @@ def mode_on(mode, modeOn ):
     global ACTIVE_MODE
     global ALL_MODE
     global FRAME
+    global LOCK_MAP
+    global DEVICE
 
     if not MODE.has_key(mode):
         return
@@ -92,11 +98,12 @@ def mode_on(mode, modeOn ):
                 ALL_MODE.insert(i, mode)
                 break
         ALL_MODE = sorted(list(set(ALL_MODE)), key = ALL_MODE.index)
-    else:
+    elif modeOn == 'MODE_OFF':
         if mode in ALL_MODE:
             ALL_MODE.remove(mode)
         else:
             return
+
 
     print ALL_MODE
 
@@ -104,10 +111,61 @@ def mode_on(mode, modeOn ):
     # if len(list_hud) > 0: modeList['hud'] = [list_hud[0]]
 
     list_without_hud = [x for x in ALL_MODE if x not in modeList['hud']]
-    modeList['meta'] = list_without_hud[:int((len(list_without_hud)+1)/2)]
-    modeList['navi'] = list_without_hud[len(modeList['meta']):]
+    len_navi = 0
+    len_meta = 0
+
+    print LOCK_MAP
+    if LOCK_MAP == 0:
+        len_navi = 1
+        len_meta = (len(list_without_hud) - len_navi) > 3 and 3 or (len(list_without_hud) - len_navi)
+    elif LOCK_MAP == 1:
+        if len(list_without_hud) <=2:
+            LOCK_MAP = -1
+        else:
+            if len(list_without_hud) <=4:
+                len_navi = 2
+                len_meta = len(list_without_hud) - len_navi
+            else:
+                len_meta = 3
+                len_navi = (len(list_without_hud) - len_meta) > 3 and 3 or (len(list_without_hud) - len_meta)
+    elif LOCK_MAP == 2:
+        if len(list_without_hud) <= 2:
+            LOCK_MAP = -1
+        else:
+            len_navi = 2
+            len_meta = (len(list_without_hud) - len_navi) > 3 and 3 or (len(list_without_hud) - len_navi)
+    elif LOCK_MAP == 3 or LOCK_MAP == 4:
+        print len(list_without_hud)
+        if len(list_without_hud) <= 3:
+            LOCK_MAP = -1
+        else:
+            len_navi = 3
+            len_meta = (len(list_without_hud) - len_navi) > 3 and 3 or (len(list_without_hud) - len_navi)
+    if LOCK_MAP < 0:
+        len_meta = int((len(list_without_hud)+1)/2)
+        len_navi = len(list_without_hud) - len_meta
+    else:
+        list_without_hud = [x for x in list_without_hud if x != 'navi']
+        len_navi = len_navi - 1
+
+    print 'LOCK_MAP : ' + str(LOCK_MAP)
+    print 'len_navi : ' + str(len_navi)
+    print 'len_meta : ' + str(len_meta)
+    print 'list_without_hud : ' + str(list_without_hud)
+
+
+
+    modeList['meta'] = list_without_hud[:len_meta]
+    modeList['navi'] = list_without_hud[len_meta:len_navi+len_meta]
+    if LOCK_MAP == 0 or LOCK_MAP == 1:
+        modeList['navi'].insert(0, 'navi')
+    elif LOCK_MAP == 2 or LOCK_MAP == 3:
+        modeList['navi'].insert(1, 'navi')
+    elif LOCK_MAP == 4:
+        modeList['navi'].insert(2, 'navi')
     
     for device in DEVICE:
+        print 'device', device
         ACTIVE_MODE[device]['frame'] = FRAME[device][str(len(modeList[device]))]
         ACTIVE_MODE[device]['mode'] = '|'.join(modeList[device])
     ACTIVE_MODE['hud']['frame'] = 'Hud0Screen'
@@ -139,10 +197,17 @@ class ChatSocketHandler(tornado.websocket.WebSocketHandler):
         print ('got message %r', message)
         req = eval(message)
         print req
+        global ACTIVE_MODE
         if req['action'] == 'getall':
-            global ACTIVE_MODE
             print ACTIVE_MODE
             self.write_message(ACTIVE_MODE)
+        elif req['action'] == 'lockmap':
+            global LOCK_MAP
+            LOCK_MAP = int(req['pos'])
+            mode_on('navi', '')
+            print ACTIVE_MODE
+            self.write_message(ACTIVE_MODE)
+
 
 class WebControlHandler(tornado.web.RequestHandler):
     def post(self):

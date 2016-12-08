@@ -15,6 +15,17 @@
 			}
 		);
 	}
+	var pos = -1;
+	function lockMap() {
+		console.log("test");
+		$.post("webcontrol",
+			{
+				'action': 'lockmap',
+				'pos': pos
+			}
+		);
+		pos = (pos + 1)%5
+	}
 </script>
 
 <button type="button" onclick="modeControl('modeon', 'crossroad');">modeon crossroad</button> 
@@ -27,3 +38,4 @@
 <button type="button" onclick="modeControl('modeoff', 'opendoor');">modeoff opendoor</button> <br/>
 <button type="button" onclick="carControl('start');">start car</button> 
 <button type="button" onclick="carControl('stop');">stop car</button> <br/>
+<button type="button" onclick="lockMap();">lockmap</button>
