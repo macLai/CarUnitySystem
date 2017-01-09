@@ -5,4 +5,25 @@ Item {
 	Image {
 		source: "qrc:///Audio_1_2.png"
 	}
+
+	Image {
+		x: 239
+		y: 1
+		visible: device == "navi"
+		source: backMouse.pressed? "qrc:///back_1_2_exe.png": "qrc:///back_1_2_nml.png"
+		MouseArea {
+			id: backMouse
+			anchors.fill: parent
+			onClicked: {
+				wSocket.sendMessageFromQml("{'action': 'modeoff', 'mode': 'audio'}");
+			}
+		}
+	}
+
+	Image {
+		id: play
+		x: 8
+		y: 349
+		source: audio.isPhoneOn? "qrc:///pause.png":"qrc:///play.png"
+	}
 }

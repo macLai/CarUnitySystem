@@ -23,6 +23,14 @@ Item {
 	Loader {
 		id: audio
 		objectName: "audio"
+		property var isPhoneOn: false
+
+		Connections {
+			target: wSocket
+			onPhoneChanged: {
+				audio.isPhoneOn = phoneStatus;
+			}
+		}
 	}
 	Loader {
 		id: camera
@@ -39,5 +47,17 @@ Item {
 	Loader {
 		id: phone
 		objectName: "phone"
+	}
+	Loader {
+		id: acclda
+		objectName: "acclda"
+	}
+	Loader {
+		id: driverinfo
+		objectName: "driverinfo"
+	}
+	Loader {
+		id: energymonitor
+		objectName: "energymonitor"
 	}
 }

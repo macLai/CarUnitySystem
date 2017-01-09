@@ -26,6 +26,7 @@ void Frame::initialize(QString displayKind, int x, int y)
 	engine.rootObjects().first()->setProperty("x", x);
 	engine.rootObjects().first()->setProperty("y", y);
 	engine.rootContext()->setContextProperty("wSocket", WSocket::getInstance());
+	engine.rootObjects().first()->setProperty("device", displayKind);
 
 	QObject *loader = engine.rootObjects().first()->findChild<QObject*>("frameLoader");
 	connect(loader, SIGNAL(loaded()), this, SLOT(onFrameLoaded()));

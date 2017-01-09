@@ -5,6 +5,9 @@
 #include "crossroad\crossroad.h"
 #include "opendoor\opendoor.h"
 #include "phone\phone.h"
+#include "acclda\acclda.h"
+#include "driverinfo\driverinfo.h"
+#include "energymonitor\energymonitor.h"
 #include <qqmlapplicationengine.h>
 #include "../frame/frame.h"
 
@@ -14,6 +17,9 @@ const QString ModeData::MODEID_CAMERA = "camera";
 const QString ModeData::MODEID_CROSSROAD = "crossroad";
 const QString ModeData::MODEID_OPENDOOR = "opendoor";
 const QString ModeData::MODEID_PHONE = "phone";
+const QString ModeData::MODEID_ACCLDA = "acclda";
+const QString ModeData::MODEID_DRIVERINFO = "driverinfo";
+const QString ModeData::MODEID_ENERGYMONITOR = "energymonitor";
 
 const QString ModeData::modeSize ( "{ \
 	\"navi1\": { \
@@ -39,6 +45,9 @@ const QString ModeData::modeSize ( "{ \
 		\"0\": {\"x\": 112, \"y\": 60, \"width\": 400, \"height\": 480}, \
 		\"1\": {\"x\": 512, \"y\": 60, \"width\": 400, \"height\": 240}, \
 		\"2\": {\"x\": 512, \"y\": 300, \"width\": 400, \"height\": 240} \
+	}, \
+	\"hud1\": { \
+		\"0\": {\"x\": 640, \"y\": 490, \"width\": 216, \"height\": 133} \
 	} \
 }" );
 
@@ -87,6 +96,20 @@ ModeData::ModeData()
 		modeList[MODEID_OPENDOOR] = Opendoor::getInstance(MODEID_OPENDOOR, loader);
 	}
 
+	loader = engine->rootObjects().first()->findChild<QObject*>(MODEID_ACCLDA);
+	if (loader != NULL) {
+		modeList[MODEID_ACCLDA] = Acclda::getInstance(MODEID_ACCLDA, loader);
+	}
+
+	loader = engine->rootObjects().first()->findChild<QObject*>(MODEID_DRIVERINFO);
+	if (loader != NULL) {
+		modeList[MODEID_DRIVERINFO] = Driverinfo::getInstance(MODEID_DRIVERINFO, loader);
+	}
+
+	loader = engine->rootObjects().first()->findChild<QObject*>(MODEID_ENERGYMONITOR);
+	if (loader != NULL) {
+		modeList[MODEID_ENERGYMONITOR] = Energymonitor::getInstance(MODEID_ENERGYMONITOR, loader);
+	}
 }
 
 ModeData* ModeData::getInstance()

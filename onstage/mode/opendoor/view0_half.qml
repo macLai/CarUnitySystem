@@ -5,4 +5,18 @@ Item {
 	Image {
 		source: "qrc:///door_open_1_2.png"
 	}
+
+	Image {
+		x: 239
+		y: 1
+		visible: device == "navi"
+		source: backMouse.pressed? "qrc:///back_1_2_exe.png": "qrc:///back_1_2_nml.png"
+		MouseArea {
+			id: backMouse
+			anchors.fill: parent
+			onClicked: {
+				wSocket.sendMessageFromQml("{'action': 'modeoff', 'mode': 'opendoor'}");
+			}
+		}
+	}
 }

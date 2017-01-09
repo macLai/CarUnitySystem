@@ -16,6 +16,8 @@ public:
 	void sendMenssage(QString data);
 	QString frameData;
 	bool carStatus;
+	bool lockStatus;
+	bool phoneStatus;
 
 public slots:
 	void reviceMessage(QString message);
@@ -24,6 +26,8 @@ public slots:
 signals:
 	void frameChanged(QString message);
 	void carChanged(bool carStatus);
+	void lockChanged(bool lockStatus);
+	void phoneChanged(bool phoneStatus);
 
 private:
 	WSocket();

@@ -5,7 +5,7 @@
 
 WSocket* WSocket::it = NULL;
 
-WSocket::WSocket():frameData(""), carStatus(true)
+WSocket::WSocket():frameData(""), carStatus(true), lockStatus(false), phoneStatus(false)
 {
     QEventLoop loop;
     connect(this, &QWebSocket::connected, &loop, &QEventLoop::quit);
@@ -33,6 +33,12 @@ void WSocket::reviceMessage(QString message)
 			frameData = message;
 			emit frameChanged(frameData);
 		}
+		bool phoneStatusLocal = message.contains("phone");
+		if (phoneStatus != phoneStatusLocal)
+		{
+			phoneStatus = phoneStatusLocal;
+			emit phoneChanged(phoneStatus);
+		}
 	}
 	else if (status == "car")
 	{
@@ -42,6 +48,15 @@ void WSocket::reviceMessage(QString message)
 		{
 			carStatus = carStatusLocal;
 			emit carChanged(carStatus);
+		}
+	}
+	else if (status == "maplock")
+	{
+		bool lockStatusLocal = data["lock"].toInt() >= 0;
+		if (lockStatusLocal != lockStatus)
+		{
+			lockStatus = lockStatusLocal;
+			emit lockChanged(lockStatus);
 		}
 	}
 }

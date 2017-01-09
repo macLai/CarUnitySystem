@@ -34,6 +34,12 @@ HEADERS  +=     frame/frame.h \
                 mode/opendoor/opendoorDB.h \
                 mode/phone/phone.h \
                 mode/phone/phoneDB.h \
+                mode/acclda/acclda.h \
+                mode/acclda/accldaDB.h \
+                mode/driverinfo/driverinfo.h \
+                mode/driverinfo/driverinfoDB.h \
+                mode/energymonitor/energymonitor.h \
+                mode/energymonitor/energymonitorDB.h \
                 socket/server_link.h
 
 RESOURCES += qml.qrc

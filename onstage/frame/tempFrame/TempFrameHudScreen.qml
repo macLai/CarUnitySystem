@@ -20,6 +20,11 @@ Item {
 		autoPlay: true
 		onStopped: play()
 	}
+	Image {
+		source: "qrc:///speed.png"
+		x: 514
+		y: 300
+	}
 
 	Connections {
 		target: car
@@ -29,5 +34,17 @@ Item {
 		}
 	}
 
+	Loader {
+		id: crossroad
+		objectName: "crossroad"
+	}
+	Loader {
+		id: opendoor
+		objectName: "opendoor"
+	}
+	Loader {
+		id: acclda
+		objectName: "acclda"
+	}
 	
 }

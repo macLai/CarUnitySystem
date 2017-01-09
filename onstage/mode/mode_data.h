@@ -28,6 +28,9 @@ public:
 	static const QString MODEID_CROSSROAD;
 	static const QString MODEID_OPENDOOR;
 	static const QString MODEID_PHONE;
+	static const QString MODEID_ACCLDA;
+	static const QString MODEID_DRIVERINFO;
+	static const QString MODEID_ENERGYMONITOR;
 
 private:
 	static ModeData *it;

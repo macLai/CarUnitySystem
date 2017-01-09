@@ -12,6 +12,8 @@ ApplicationWindow {
     height: 480
 	flags: Qt.FramelessWindowHint
 
+	property var device: "navi"
+
 	Loader {
 		id: frameLoader
 		asynchronous: true

@@ -24,7 +24,21 @@
 				'pos': pos
 			}
 		);
-		pos = (pos + 1)%5
+		pos = (pos + 1)%5;
+	}
+	function displayControl(status) {
+		$.post("webcontrol",
+			{
+				'action': status
+			}
+		);
+	}
+	function hudControl(status) {
+		$.post("webcontrol",
+			{
+				'action': status
+			}
+		);
 	}
 </script>
 
@@ -36,6 +50,16 @@
 <button type="button" onclick="modeControl('modeoff', 'camera');">modeoff camera</button> <br/>
 <button type="button" onclick="modeControl('modeon', 'opendoor');">modeon opendoor</button> 
 <button type="button" onclick="modeControl('modeoff', 'opendoor');">modeoff opendoor</button> <br/>
+<button type="button" onclick="modeControl('modeon', 'acclda');">modeon acclda</button> 
+<button type="button" onclick="modeControl('modeoff', 'acclda');">modeoff acclda</button> <br/>
+<button type="button" onclick="modeControl('modeon', 'energymonitor');">modeon energymonitor</button> 
+<button type="button" onclick="modeControl('modeoff', 'energymonitor');">modeoff energymonitor</button> <br/>
+<button type="button" onclick="modeControl('modeon', 'driverinfo');">modeon driverinfo</button> 
+<button type="button" onclick="modeControl('modeoff', 'driverinfo');">modeoff driverinfo</button> <br/>
 <button type="button" onclick="carControl('start');">start car</button> 
 <button type="button" onclick="carControl('stop');">stop car</button> <br/>
-<button type="button" onclick="lockMap();">lockmap</button>
+<button type="button" onclick="displayControl('metamin');">meta first</button> 
+<button type="button" onclick="displayControl('navimin');">navi first</button>
+<button type="button" onclick="displayControl('normal');">normal</button> <br/>
+<button type="button" onclick="hudControl('lockhud');">lock hud</button> 
+<button type="button" onclick="hudControl('unlockhud');">unlock hud</button> <br/>

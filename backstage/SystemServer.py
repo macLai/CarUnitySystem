@@ -19,21 +19,32 @@ FRAME = {
     'hud': {
         '0': 'Hud0Screen',
         '1': 'Hud1Screen',
-        '2': 'Hud2Screen',
     },
 }
 MODE = {
+    'acclda': {
+        'priority': 11,
+        'display': '111'
+    },
     'opendoor': {
-        'proirity': 10,
-        'display': '110'
+        'priority': 10,
+        'display': '111'
     },
     'camera': {
         'priority': 8,
-        'display': '010'
+        'display': '011'
     },
     'crossroad': {
         'priority': 6,
-        'display': '110'
+        'display': '111'
+    },
+    'energymonitor': {
+        'priority': 1,
+        'display': '011'
+    },
+    'driverinfo': {
+        'priority': 1,
+        'display': '011'
     },
     'audio': {
         'priority': 1,
@@ -67,6 +78,7 @@ ALL_MODE = ['audio', 'navi']
 LOCK_MAP = -1
 META_MIN = False
 NAVI_MIN = False
+LOCK_HUD = -1
 
 
 def randomMode():
@@ -87,6 +99,7 @@ def mode_on(mode, modeOn ):
     global FRAME
     global LOCK_MAP
     global DEVICE
+    global LOCK_HUD
 
     if not MODE.has_key(mode):
         return
@@ -107,8 +120,9 @@ def mode_on(mode, modeOn ):
 
     print ALL_MODE
 
-    # list_hud = [x for x in ALL_MODE if MODE[x]['display'][0] == '1']
-    # if len(list_hud) > 0: modeList['hud'] = [list_hud[0]]
+    if LOCK_HUD < 0:
+        list_hud = [x for x in ALL_MODE if MODE[x]['display'][0] == '1']
+        if len(list_hud) > 0: modeList['hud'] = [list_hud[0]]
 
     list_without_hud = [x for x in ALL_MODE if x not in modeList['hud']]
     len_navi = 0
@@ -141,12 +155,23 @@ def mode_on(mode, modeOn ):
         else:
             len_navi = 3
             len_meta = (len(list_without_hud) - len_navi) > 3 and 3 or (len(list_without_hud) - len_navi)
-    if LOCK_MAP < 0:
-        len_meta = int((len(list_without_hud)+1)/2)
-        len_navi = len(list_without_hud) - len_meta
-    else:
+
+    if LOCK_MAP >= 0:
         list_without_hud = [x for x in list_without_hud if x != 'navi']
         len_navi = len_navi - 1
+    elif META_MIN:
+        len_meta = 1
+        len_navi = (len(list_without_hud) - len_meta) > 3 and 3 or (len(list_without_hud) - len_meta)
+    elif NAVI_MIN:
+        len_navi = 1
+        len_meta = (len(list_without_hud) - len_navi) > 3 and 3 or (len(list_without_hud) - len_navi)
+    else:
+        if len(list_without_hud) >= 6:
+            len_meta = 3
+            len_navi = 3
+        else:
+            len_meta = int((len(list_without_hud)+1)/2)
+            len_navi = len(list_without_hud) - len_meta
 
     print 'LOCK_MAP : ' + str(LOCK_MAP)
     print 'len_navi : ' + str(len_navi)
@@ -165,11 +190,8 @@ def mode_on(mode, modeOn ):
         modeList['navi'].insert(2, 'navi')
     
     for device in DEVICE:
-        print 'device', device
         ACTIVE_MODE[device]['frame'] = FRAME[device][str(len(modeList[device]))]
         ACTIVE_MODE[device]['mode'] = '|'.join(modeList[device])
-    ACTIVE_MODE['hud']['frame'] = 'Hud0Screen'
-    ACTIVE_MODE['hud']['mode'] = ''
 
 
 
@@ -198,19 +220,33 @@ class ChatSocketHandler(tornado.websocket.WebSocketHandler):
         req = eval(message)
         print req
         global ACTIVE_MODE
+        global LOCK_MAP
         if req['action'] == 'getall':
             print ACTIVE_MODE
             self.write_message(ACTIVE_MODE)
         elif req['action'] == 'lockmap':
             global LOCK_MAP
             LOCK_MAP = int(req['pos'])
+            if LOCK_MAP >= 0:
+                META_MIN = False
+                NAVI_MIN = False
             mode_on('navi', '')
             print ACTIVE_MODE
-            self.write_message(ACTIVE_MODE)
+            ChatSocketHandler.send_updates(ACTIVE_MODE)
+            ChatSocketHandler.send_updates({'status':'maplock', 'lock':LOCK_MAP})
+        elif req['action'] == 'modeoff':
+            mode = req['mode']
+            mode_on(str(mode), 'MODE_OFF')
+            ChatSocketHandler.send_updates(ACTIVE_MODE)
+            ChatSocketHandler.send_updates({'status':'maplock', 'lock':LOCK_MAP})
 
 
 class WebControlHandler(tornado.web.RequestHandler):
     def post(self):
+        global LOCK_MAP
+        global META_MIN
+        global NAVI_MIN
+        global LOCK_HUD
         action = self.get_argument('action', None)
         if action == 'random':
             randomMode()
@@ -226,12 +262,50 @@ class WebControlHandler(tornado.web.RequestHandler):
             mode = self.get_argument('mode', None)
             mode_on(str(mode), 'MODE_ON')
             ChatSocketHandler.send_updates(ACTIVE_MODE)
+            ChatSocketHandler.send_updates({'status':'maplock', 'lock':LOCK_MAP})
             self.write(ACTIVE_MODE)
+            print ACTIVE_MODE
         if action == 'modeoff':
             mode = self.get_argument('mode', None)
             mode_on(str(mode), 'MODE_OFF')
             ChatSocketHandler.send_updates(ACTIVE_MODE)
+            ChatSocketHandler.send_updates({'status':'maplock', 'lock':LOCK_MAP})
             self.write(ACTIVE_MODE)
+            print ACTIVE_MODE
+        if action == 'metamin':
+            META_MIN = True
+            NAVI_MIN = False
+            LOCK_MAP = -1
+            mode_on('navi', 'META_MIN')
+            ChatSocketHandler.send_updates(ACTIVE_MODE)
+            ChatSocketHandler.send_updates({'status':'maplock', 'lock':LOCK_MAP})
+            self.write(ACTIVE_MODE)
+        if action == 'navimin':
+            META_MIN = False
+            NAVI_MIN = True
+            LOCK_MAP = -1
+            mode_on('navi', 'NAVI_MIN')
+            ChatSocketHandler.send_updates(ACTIVE_MODE)
+            ChatSocketHandler.send_updates({'status':'maplock', 'lock':LOCK_MAP})
+            self.write(ACTIVE_MODE)
+        if action== 'normal':
+            META_MIN = False
+            NAVI_MIN = False
+            LOCK_MAP = -1
+            mode_on('navi', 'normal')
+            ChatSocketHandler.send_updates(ACTIVE_MODE)
+            ChatSocketHandler.send_updates({'status':'maplock', 'lock':LOCK_MAP})
+            self.write(ACTIVE_MODE)
+        if action == 'lockhud':
+            LOCK_HUD = 1
+            mode_on('navi', 'LOCK_HUD')
+            ChatSocketHandler.send_updates(ACTIVE_MODE)
+            ChatSocketHandler.send_updates({'status':'maplock', 'lock':LOCK_MAP})
+        if action == 'unlockhud':
+            LOCK_HUD = -1
+            mode_on('navi', 'LOCK_HUD')
+            ChatSocketHandler.send_updates(ACTIVE_MODE)
+            ChatSocketHandler.send_updates({'status':'maplock', 'lock':LOCK_MAP})
 
     def get(self):
         self.render('WebControl.html')
