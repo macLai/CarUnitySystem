@@ -9,7 +9,7 @@ const static QString opendoorDB("{ \
         \"800|480\": \"qrc:///opendoor/view0_full.qml\", \
         \"400|480\": \"qrc:///opendoor/view0_half.qml\", \
         \"400|240\": \"qrc:///opendoor/view0_quarter.qml\", \
-        \"216|133\": \"qrc:///crossroad/view0_hud.qml\" \
+        \"300|300\": \"qrc:///opendoor/view0_hud.qml\" \
     } \
 }");
 

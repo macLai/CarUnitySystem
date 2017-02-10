@@ -1,6 +1,7 @@
 import QtQuick 2.7
 import QtQuick.Controls 1.5
 import QtMultimedia 5.6
+import QtWebSockets 1.0
 
 Item {
 
@@ -12,27 +13,35 @@ Item {
 	Video {
 		id: video
 		objectName: "video"
-		x: 0
-		y: 0
-		width: 1280
-		height: 720
-		source: 'http://localhost:8888/car.mp4'
+		anchors.fill: parent
+		source: 'http://localhost:8888/run_stopfront.m4v'
 		autoPlay: true
 		onStopped: play()
-	}
-	Image {
-		source: "qrc:///speed.png"
-		x: 514
-		y: 300
+		fillMode: VideoOutput.PreserveAspectCrop 
 	}
 
-	Connections {
-		target: car
-		onCarChanged: {
-			if (carStatus) video.stop();
-			else video.pause();
-		}
+	Image {
+		source: "qrc:///speed.png"
+		x: 510
+		y: 419
 	}
+
+	Text {
+		text: '60'
+		x: 561
+		y: 458
+		font.pixelSize: 26
+		font.weight: Font.Medium
+		color: "lightsteelblue"
+	}
+
+	// Connections {
+	// 	target: car
+	// 	onCarChanged: {
+	// 		if (carStatus) video.stop();
+	// 		else video.pause();
+	// 	}
+	// }
 
 	Loader {
 		id: crossroad
@@ -45,6 +54,18 @@ Item {
 	Loader {
 		id: acclda
 		objectName: "acclda"
+	}
+
+	WebSocket {
+		id: socket
+		url: "ws://localhost:8888/map/pos"
+		active: true
+		onTextMessageReceived: {
+			var carData = eval("(" + message + ")");
+			if (carData['cross'] != "" && crossroad.opacity == 0) {
+				wSocket.sendMessageFromQml("{'action': 'modeon', 'mode': -1}");
+			}
+		}
 	}
 	
 }

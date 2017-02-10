@@ -1,17 +1,29 @@
-<script src="./jquery.min.js"></script>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<link href="bootstrap.min.css" rel="stylesheet">
+<link href="bootstrap-switch.css" rel="stylesheet">
+<script src="jquery.min.js"></script>
+<script src="bootstrap.min.js"></script>
+<script src="bootstrap-switch.js"></script>
+<script src="button.js"></script>
+<!-- <script src="http://cdn.bootcss.com/bootstrap/3.2.0/js/button.js"></script> -->
+
 <script type="text/javascript">
 	function modeControl(modeon, mode) {
+		var modeOnString = modeon?"modeon":"modeoff";
 		$.post("webcontrol",
 			{
-				'action': modeon,
+				'action': modeOnString,
 				'mode': mode
 			}
 		);
+		console.log(modeOnString);
 	}
 	function carControl(status) {
+		var statusString = status?"start":"stop";
 		$.post("webcontrol",
 			{
-				'action': status
+				'action': statusString
 			}
 		);
 	}
@@ -34,32 +46,240 @@
 		);
 	}
 	function hudControl(status) {
+		var statusString = status?"lockhud":"unlockhud";
 		$.post("webcontrol",
 			{
-				'action': status
+				'action': statusString
 			}
 		);
 	}
+
+	var isCarRunning = false;
+	var isBackCameraOn = false;
+	var isPhoneOn = false;
+	var isOpendoorOn = false;
+	var isEnergyMonitorOn = false;
+	var isDriverinfoOn = false;
+	$(document).ready(function(e) {
+		$("input[type=\"checkbox\"]").bootstrapSwitch();
+
+        var ws = new WebSocket("ws://" + location.host);
+    	ws.onmessage = function (evt) {
+        	var msg = JSON.parse(evt.data);
+        	if (msg['status'] == 'car')
+        	{
+        		if (msg['run'] == 'start')
+        		{
+        			isCarRunning = true;
+        			$("#car").bootstrapSwitch('state', true, true);
+        		}
+        		else
+        		{
+        			isCarRunning = false;
+        			$("#car").bootstrapSwitch('state', false, true);
+        		}
+        	}
+        	else if (msg['status'] == 'allmodes')
+        	{
+        		if( evt.data.indexOf("camera") != -1)
+        		{
+        			isBackCameraOn = true;
+        			$("#camera").bootstrapSwitch('state', true, true);
+        		}
+        		else
+        		{
+        			isBackCameraOn = false;
+        			$("#camera").bootstrapSwitch('state', false, true);
+        		}
+        		if( evt.data.indexOf("phone") != -1)
+        		{
+        			isPhoneOn = true;
+        			$("#phone").bootstrapSwitch('state', true, true);
+        		}
+        		else
+        		{
+        			isPhoneOn = false;
+        			$("#phone").bootstrapSwitch('state', false, true);
+        		}
+        		if( evt.data.indexOf("opendoor") != -1)
+        		{
+        			isOpendoorOn = true;
+        			$("#opendoor").bootstrapSwitch('state', true, true);
+        		}
+        		else
+        		{
+        			isOpendoorOn = false;
+        			$("#opendoor").bootstrapSwitch('state', false, true);
+        		}
+        		if( evt.data.indexOf("energymonitor") != -1)
+        		{
+        			isEnergyMonitorOn = true;
+        			$("#energymonitor").bootstrapSwitch('state', true, true);
+        		}
+        		else
+        		{
+        			isEnergyMonitorOn = false;
+        			$("#energymonitor").bootstrapSwitch('state', false, true);
+        		}
+        		if( evt.data.indexOf("driverinfo") != -1)
+        		{
+        			isDriverinfoOn = true;
+        			$("#driverinfo").bootstrapSwitch('state', true, true);
+        		}
+        		else
+        		{
+        			isDriverinfoOn = false;
+        			$("#driverinfo").bootstrapSwitch('state', false, true);
+        		}
+        	}
+        	else if (msg['status'] == 'hudlock')
+        	{
+        		if (msg['lock'] == true)
+        		{
+        			$("#hud").bootstrapSwitch('state', true, true);
+        		}
+        		else
+        		{
+        			$("#hud").bootstrapSwitch('state', false, true);
+        		}
+        	}
+        	else if (msg['status'] == 'displayControl')
+        	{
+        		if (msg['lock'] == 'normal')
+        		{
+        			$("#normal").button('toggle');
+        		}
+        		else if (msg['lock'] == 'metamin')
+        		{
+        			$("#metamin").button('toggle');
+        		}
+        		else if (msg['lock'] == 'navimin')
+        		{
+        			$("#navimin").button('toggle');
+        		}
+        	}
+
+        	if ( isCarRunning == true)
+        	{
+        		$("#opendoor").bootstrapSwitch('readonly', true, true);
+        		$("#camera").bootstrapSwitch('readonly', true, true);
+        	}
+        	else if ( isBackCameraOn == true)
+        	{
+        		$("#camera").bootstrapSwitch('readonly', false, true);
+        		$("#opendoor").bootstrapSwitch('readonly', true, true);
+        	}
+        	else
+        	{
+        		$("#opendoor").bootstrapSwitch('readonly', false, true);
+        		$("#camera").bootstrapSwitch('readonly', false, true);
+        	}
+      	};
+      	$('input[name="my-checkbox"]').on('switchChange.bootstrapSwitch', function(event, state) {
+			if (this.id == "phone" || this.id == "energymonitor" || this.id == "driverinfo" ) {
+				modeControl(state, this.id);
+			}
+			else if ( this.id == "camera" ) {
+				if (state == true) modeControl(false, "opendoor");
+				modeControl(state, this.id);
+			}
+			else if (this.id == "opendoor" ) {
+				if (state == true) modeControl(false, "camera");
+				modeControl(state, this.id);
+			}
+			else if (this.id == "car") {
+				if (state == true)
+				{
+					modeControl(false, "camera");
+					modeControl(false, "opendoor");
+				}
+				carControl(state);
+			}
+			else if (this.id == "hud") {
+				hudControl(state);
+			}
+			
+		});
+		$('input[name="my-checkbox"]').bootstrapSwitch('state', false, true);
+		$('#myStateButton').on('click', function (e) {
+    		displayControl(e.target.id);
+		});
+		$('#driveButton').on('click', function (e) {
+    		displayControl(e.target.id);
+		});
+    });
 </script>
 
-<button type="button" onclick="modeControl('modeon', 'crossroad');">modeon crossroad</button> 
-<button type="button" onclick="modeControl('modeoff', 'crossroad');">modeoff crossroad</button> <br/>
-<button type="button" onclick="modeControl('modeon', 'phone');">modeon phone</button> 
-<button type="button" onclick="modeControl('modeoff', 'phone');">modeoff phone</button> <br/>
-<button type="button" onclick="modeControl('modeon', 'camera');">modeon camera</button> 
-<button type="button" onclick="modeControl('modeoff', 'camera');">modeoff camera</button> <br/>
-<button type="button" onclick="modeControl('modeon', 'opendoor');">modeon opendoor</button> 
-<button type="button" onclick="modeControl('modeoff', 'opendoor');">modeoff opendoor</button> <br/>
-<button type="button" onclick="modeControl('modeon', 'acclda');">modeon acclda</button> 
-<button type="button" onclick="modeControl('modeoff', 'acclda');">modeoff acclda</button> <br/>
-<button type="button" onclick="modeControl('modeon', 'energymonitor');">modeon energymonitor</button> 
-<button type="button" onclick="modeControl('modeoff', 'energymonitor');">modeoff energymonitor</button> <br/>
-<button type="button" onclick="modeControl('modeon', 'driverinfo');">modeon driverinfo</button> 
-<button type="button" onclick="modeControl('modeoff', 'driverinfo');">modeoff driverinfo</button> <br/>
-<button type="button" onclick="carControl('start');">start car</button> 
-<button type="button" onclick="carControl('stop');">stop car</button> <br/>
-<button type="button" onclick="displayControl('metamin');">meta first</button> 
-<button type="button" onclick="displayControl('navimin');">navi first</button>
-<button type="button" onclick="displayControl('normal');">normal</button> <br/>
-<button type="button" onclick="hudControl('lockhud');">lock hud</button> 
-<button type="button" onclick="hudControl('unlockhud');">unlock hud</button> <br/>
+<h4>Contents Control</h4>
+<div class="row">
+	<div class="col-md-12">
+		<ul class="list-group">
+		  <li class="list-group-item">Phone
+		  	<div style="float:right;margin-top:-7;"><input type="checkbox" name="my-checkbox" id="phone" checked /></div>
+		  </li>
+		  <li class="list-group-item">Back Camera
+		  	<div style="float:right;margin-top:-7;"><input type="checkbox" name="my-checkbox" id="camera" checked /></div>
+		  </li>
+		  <li class="list-group-item">Open Door
+		  	<div style="float:right;margin-top:-7;"><input type="checkbox" name="my-checkbox" id="opendoor" checked /></div>
+		  </li>
+		  <li class="list-group-item">Energy Monitor
+		  	<div style="float:right;margin-top:-7;"><input type="checkbox" name="my-checkbox" id="energymonitor" checked /></div>
+		  </li>
+		  <li class="list-group-item">Driver Info
+		  	<div style="float:right;margin-top:-7;"><input type="checkbox" name="my-checkbox" id="driverinfo" checked /></div>
+		  </li>
+		</ul>
+	</div>
+</div>
+
+<h4>Car Control</h4>
+<div class="row">
+	<div class="col-md-12">
+		<ul class="list-group">
+		  <li class="list-group-item">Driving
+		  	<div style="float:right;margin-top:-7;"><input type="checkbox" name="my-checkbox" id="car" checked /></div>
+		  </li>
+		</ul>
+	</div>
+</div>
+
+<h4>HUD Status Control</h4>
+<div class="row">
+	<div class="col-md-12">
+		<ul class="list-group">
+		  <li class="list-group-item">HUD搭載切り替え
+		  	<div style="float:right;margin-top:-7;"><input type="checkbox" name="my-checkbox" id="hud" checked /></div>
+		  </li>
+		</ul>
+	</div>
+</div>
+
+<h4>調停策略 Control</h4>
+<div class="btn-group btn-group-justified" id="myStateButton" data-toggle="buttons">
+  <label class="btn btn-default active" id="normal">
+    <input type="radio" name="options" autocomplete="off" checked> Normal
+  </label>
+  <label class="btn btn-default" id="metamin">
+    <input type="radio" name="options" autocomplete="off"> Meta First
+  </label>
+  <label class="btn btn-default" id="navimin">
+    <input type="radio" name="options" autocomplete="off"> Navi First
+  </label>
+</div>
+
+<h4>Drive Control</h4>
+<div class="btn-group btn-group-justified" id="driveButton" data-toggle="buttons">
+  <label class="btn btn-default active" id="stop">
+    <input type="radio" name="options" autocomplete="off" checked> Stop
+  </label>
+  <label class="btn btn-default" id="run_crossroad">
+    <input type="radio" name="options" autocomplete="off"> CrossRoad
+  </label>
+  <label class="btn btn-default" id="run_frontcar">
+    <input type="radio" name="options" autocomplete="off"> FrontCar Warning
+  </label>
+  <label class="btn btn-default" id="auto">
+    <input type="radio" name="options" autocomplete="off"> Auto
+  </label>
+</div>

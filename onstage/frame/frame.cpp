@@ -34,7 +34,7 @@ void Frame::initialize(QString displayKind, int x, int y)
 
 	//qDebug() << QObject( engine.rootObjects()[0]).findChild("loader");
 
-	connect(WSocket::getInstance(), &WSocket::frameChanged, this, &Frame::frameChanged);
+	
 }
 
 Frame* Frame::getInstance()
@@ -63,7 +63,7 @@ void Frame::onFrameLoaded()
 		engine.rootContext()->setContextProperty("car", WSocket::getInstance());
 	}
 	ModeEnter::getInstance()->initialize();
-
+	connect(WSocket::getInstance(), &WSocket::frameChanged, this, &Frame::frameChanged);
 	WSocket::getInstance()->sendMenssage("{'action': 'getall'}");
 }
 
