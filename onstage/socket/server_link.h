@@ -15,9 +15,10 @@ public:
 	static WSocket *getInstance();
 	void sendMenssage(QString data);
 	QString frameData;
-	bool carStatus;
+	QString carStatus;
 	bool lockStatus;
 	bool phoneStatus;
+	bool hudStatus;
 
 public slots:
 	void reviceMessage(QString message);
@@ -25,9 +26,10 @@ public slots:
 
 signals:
 	void frameChanged(QString message);
-	void carChanged(bool carStatus);
+	void carChanged(QString carStatus);
 	void lockChanged(bool lockStatus);
 	void phoneChanged(bool phoneStatus);
+	void hudLockChanged(bool hudStatus);
 
 private:
 	WSocket();

@@ -79,7 +79,7 @@ LOCK_MAP = -1
 LOCK_HUD = -1
 META_MIN = False
 NAVI_MIN = False
-CAR_RUN = False
+CAR_RUN = 'stop'
 
 def randomMode():
     pass
@@ -219,7 +219,7 @@ class ChatSocketHandler(tornado.websocket.WebSocketHandler):
         ChatSocketHandler.waiters.add(self)
         self.write_message(ACTIVE_MODE)
         self.write_message({'status':'allmodes', 'mode':ALL_MODE})
-        self.write_message({'status':'car', 'run':'start' if CAR_RUN else 'stop'})
+        self.write_message({'status':'car', 'run':CAR_RUN})
         self.write_message({'status':'displayControl', 'lock':displayControl})
         self.write_message({'status':'hudlock', 'lock':LOCK_HUD>=0})
 
@@ -241,6 +241,7 @@ class ChatSocketHandler(tornado.websocket.WebSocketHandler):
         print req
         global ACTIVE_MODE
         global LOCK_MAP
+        global ALL_MODE
         if req['action'] == 'getall':
             print ACTIVE_MODE
             self.write_message(ACTIVE_MODE)
@@ -260,6 +261,12 @@ class ChatSocketHandler(tornado.websocket.WebSocketHandler):
             ChatSocketHandler.send_updates(ACTIVE_MODE)
             ChatSocketHandler.send_updates({'status':'allmodes', 'mode':ALL_MODE})
             ChatSocketHandler.send_updates({'status':'maplock', 'lock':LOCK_MAP})
+        elif req['action'] == 'modeon':
+            mode = req['mode']
+            mode_on(str(mode), 'MODE_ON')
+            ChatSocketHandler.send_updates(ACTIVE_MODE)
+            ChatSocketHandler.send_updates({'status':'allmodes', 'mode':ALL_MODE})
+            ChatSocketHandler.send_updates({'status':'maplock', 'lock':LOCK_MAP})
 
 
 class WebControlHandler(tornado.web.RequestHandler):
@@ -275,18 +282,24 @@ class WebControlHandler(tornado.web.RequestHandler):
             randomMode()
             ChatSocketHandler.send_updates(ACTIVE_MODE)
             self.write(ACTIVE_MODE)
-        if action == 'start':
-            if CAR_RUN:
+        if action == 'run_crossroad':
+            if CAR_RUN == 'run_crossroad':
                 return
-            CAR_RUN = True
-            ChatSocketHandler.send_updates({'status':'car', 'run':'start'})
-            MapPosHandler.timer_start()
+            CAR_RUN = 'run_crossroad'
+            ChatSocketHandler.send_updates({'status':'car', 'run':'run_crossroad'})
+            MapPosHandler.timer_start('run_crossroad')
         if action == 'stop':
-            if not CAR_RUN:
+            if CAR_RUN == 'stop':
                 return
-            CAR_RUN = False
+            CAR_RUN = 'stop'
             ChatSocketHandler.send_updates({'status':'car', 'run':'stop'})
             MapPosHandler.timer_stop()
+        if action == 'run_frontcar':
+            if CAR_RUN == 'run_frontcar':
+                return
+            CAR_RUN = 'run_frontcar'
+            ChatSocketHandler.send_updates({'status':'car', 'run':'run_frontcar'})
+            MapPosHandler.timer_start('run_frontcar')
         if action == 'modeon':
             mode = self.get_argument('mode', None)
             mode_on(str(mode), 'MODE_ON')
@@ -355,66 +368,43 @@ def update_pos():
     print MapPosHandler.pos[POS_NUM]
     MapPosHandler.send_updates(POS_NUM)
     POS_NUM = (POS_NUM + 1) % len(MapPosHandler.pos)
-    MapPosHandler.timer_start()
+    MapPosHandler.timer_start('')
 
 class MapPosHandler(tornado.websocket.WebSocketHandler):
     waiters = set()
-    pos = [
-        {'lat':31.161532, 'lng':121.553, 'cross': 'test1', 'len': 5, 'front': False},
-        {'lat':31.161532, 'lng':121.554, 'cross': 'test1', 'len': 4, 'front': False},
-        {'lat':31.161532, 'lng':121.555, 'cross': 'test1', 'len': 3, 'front': False},
-        {'lat':31.161532, 'lng':121.556, 'cross': 'test1', 'len': 2, 'front': False},
-        {'lat':31.161532, 'lng':121.557, 'cross': 'test1', 'len': 1, 'front': False},
-        {'lat':31.161532, 'lng':121.558, 'cross': '', 'len': 0, 'front': True},
-        {'lat':31.161532, 'lng':121.559, 'cross': '', 'len': 0, 'front': True},
-        {'lat':31.161532, 'lng':121.560, 'cross': '', 'len': 0, 'front': True},
-        {'lat':31.161532, 'lng':121.561, 'cross': '', 'len': 0, 'front': True},
-        {'lat':31.161532, 'lng':121.561, 'cross': '', 'len': 0, 'front': True},
-        {'lat':31.161532, 'lng':121.561, 'cross': 'test2', 'len': 5, 'front': False},
-        {'lat':31.161532, 'lng':121.561, 'cross': 'test2', 'len': 4, 'front': False},
-        {'lat':31.161532, 'lng':121.561, 'cross': 'test2', 'len': 3, 'front': False},
-        {'lat':31.161532, 'lng':121.561, 'cross': 'test2', 'len': 2, 'front': False},
-        {'lat':31.161532, 'lng':121.561, 'cross': 'test2', 'len': 1, 'front': False},
-        {'lat':31.161532, 'lng':121.561, 'cross': '', 'len': 0, 'front': True},
-        {'lat':31.161532, 'lng':121.561, 'cross': '', 'len': 0, 'front': True},
-        {'lat':31.161532, 'lng':121.561, 'cross': '', 'len': 0, 'front': True},
-        {'lat':31.161532, 'lng':121.561, 'cross': '', 'len': 0, 'front': True},
-        {'lat':31.161532, 'lng':121.561, 'cross': '', 'len': 0, 'front': True},
-        {'lat':31.161532, 'lng':121.561, 'cross': 'test3', 'len': 5, 'front': False},
-        {'lat':31.161532, 'lng':121.561, 'cross': 'test3', 'len': 4, 'front': False},
-        {'lat':31.161532, 'lng':121.561, 'cross': 'test3', 'len': 3, 'front': False},
-        {'lat':31.161532, 'lng':121.561, 'cross': 'test3', 'len': 2, 'front': False},
-        {'lat':31.161532, 'lng':121.561, 'cross': 'test3', 'len': 1, 'front': False},
-        {'lat':31.161532, 'lng':121.561, 'cross': '', 'len': 0, 'front': True},
-        {'lat':31.161532, 'lng':121.561, 'cross': '', 'len': 0, 'front': True},
-        {'lat':31.161532, 'lng':121.561, 'cross': '', 'len': 0, 'front': True},
-        {'lat':31.161532, 'lng':121.561, 'cross': '', 'len': 0, 'front': True},
-        {'lat':31.161532, 'lng':121.561, 'cross': '', 'len': 0, 'front': True},
-        {'lat':31.161532, 'lng':121.561, 'cross': 'test4', 'len': 5, 'front': False},
-        {'lat':31.161532, 'lng':121.561, 'cross': 'test4', 'len': 4, 'front': False},
-        {'lat':31.161532, 'lng':121.561, 'cross': 'test4', 'len': 3, 'front': False},
-        {'lat':31.161532, 'lng':121.561, 'cross': 'test4', 'len': 2, 'front': False},
-        {'lat':31.161532, 'lng':121.561, 'cross': 'test4', 'len': 1, 'front': False},
-        {'lat':31.161532, 'lng':121.561, 'cross': 'test1', 'len': 5, 'front': False},
-        {'lat':31.161532, 'lng':121.561, 'cross': 'test1', 'len': 5, 'front': False},
-        {'lat':31.161532, 'lng':121.561, 'cross': 'test1', 'len': 5, 'front': False},
-        {'lat':31.161532, 'lng':121.561, 'cross': 'test1', 'len': 5, 'front': False},
-        {'lat':31.161532, 'lng':121.561, 'cross': 'test1', 'len': 5, 'front': False},
-        {'lat':31.161532, 'lng':121.561, 'cross': 'test1', 'len': 5, 'front': False},
-        {'lat':31.161532, 'lng':121.561, 'cross': 'test1', 'len': 5, 'front': False},
-        {'lat':31.161532, 'lng':121.561, 'cross': 'test1', 'len': 5, 'front': False},
-        {'lat':31.161532, 'lng':121.561, 'cross': 'test1', 'len': 5, 'front': False},
-        {'lat':31.161532, 'lng':121.561, 'cross': 'test1', 'len': 5, 'front': False},
-        {'lat':31.161532, 'lng':121.561, 'cross': 'test1', 'len': 5, 'front': False},
-        {'lat':31.161532, 'lng':121.561, 'cross': 'test1', 'len': 5, 'front': False},
-        {'lat':31.161532, 'lng':121.561, 'cross': 'test1', 'len': 5, 'front': False},
-        {'lat':31.161532, 'lng':121.561, 'cross': 'test1', 'len': 5, 'front': False},
-        {'lat':31.161532, 'lng':121.561, 'cross': 'test1', 'len': 5, 'front': False},
-        {'lat':31.161532, 'lng':121.561, 'cross': 'test1', 'len': 5, 'front': False},
-        {'lat':31.161532, 'lng':121.561, 'cross': 'test1', 'len': 5, 'front': False},
-        {'lat':31.161532, 'lng':121.561, 'cross': 'test1', 'len': 5, 'front': False},
+    pos = []
+    pos_run_crossroad = [
+        {'lat':31.201446, 'lng':121.600266},
+        {'lat':31.201238, 'lng':121.600279},
+        {'lat':31.201030, 'lng':121.600292},
+        {'lat':31.201000, 'lng':121.600254},
+        {'lat':31.200995, 'lng':121.600222},
+        {'lat':31.200991, 'lng':121.600012},
+        {'lat':31.200987, 'lng':121.599802},
+        {'lat':31.200983, 'lng':121.599592},
+        {'lat':31.200879, 'lng':121.599382},
     ]
-    t = Timer(1, update_pos)
+    pos_run_frontcar = [
+    	{'lat':31.205834, 'lng':121.575061},
+    	{'lat':31.205143, 'lng':121.575239},
+    	{'lat':31.204452, 'lng':121.575417},
+    	{'lat':31.203761, 'lng':121.575595},
+    	{'lat':31.203070, 'lng':121.575773},
+    	{'lat':31.202379, 'lng':121.575951},
+    	{'lat':31.201688, 'lng':121.576129},
+    	{'lat':31.200997, 'lng':121.576307},
+    	{'lat':31.200306, 'lng':121.576485},
+    	{'lat':31.199615, 'lng':121.576663},
+    	{'lat':31.198924, 'lng':121.576841},
+    	{'lat':31.198233, 'lng':121.577019},
+    	{'lat':31.197542, 'lng':121.577197},
+    	{'lat':31.196851, 'lng':121.577375},
+    	{'lat':31.196160, 'lng':121.577553},
+    	{'lat':31.195469, 'lng':121.577731},
+    	{'lat':31.194773, 'lng':121.577916},
+    ]
+
+    t = Timer(3, update_pos)
     
 
     def open(self):
@@ -434,12 +424,26 @@ class MapPosHandler(tornado.websocket.WebSocketHandler):
                 print ('Error sending message')
 
     @classmethod
-    def timer_start(cls):
-        cls.t = Timer(1, update_pos)
+    def timer_start(cls, run_type):
+        print('run_type:'+ run_type)
+    	if run_type == 'run_crossroad':
+            cls.pos = cls.pos_run_crossroad
+            cls.timer_stop()
+            update_pos()
+            return
+    	elif run_type == 'run_frontcar':
+            cls.pos = cls.pos_run_frontcar
+            cls.timer_stop()
+            update_pos()
+            return
+        cls.t = Timer(3, update_pos)
         cls.t.start()
 
     @classmethod
     def timer_stop(cls):
+        global POS_NUM
+    	POS_NUM = 0
+        print('timer:cancel')
         cls.t.cancel()
 
 

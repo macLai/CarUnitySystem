@@ -5,7 +5,7 @@
 
 WSocket* WSocket::it = NULL;
 
-WSocket::WSocket():frameData(""), carStatus(true), lockStatus(false), phoneStatus(false)
+WSocket::WSocket():frameData(""), carStatus(true), lockStatus(false), phoneStatus(false), hudStatus(false)
 {
     QEventLoop loop;
     connect(this, &QWebSocket::connected, &loop, &QEventLoop::quit);
@@ -42,8 +42,7 @@ void WSocket::reviceMessage(QString message)
 	}
 	else if (status == "car")
 	{
-		QString run = data["run"].toString();
-		bool carStatusLocal = (run == "start")?true:false;
+		QString carStatusLocal = data["run"].toString();
 		if (carStatusLocal != carStatus)
 		{
 			carStatus = carStatusLocal;
@@ -59,14 +58,31 @@ void WSocket::reviceMessage(QString message)
 			emit lockChanged(lockStatus);
 		}
 	}
+	else if (status == "hudlock")
+	{
+		bool hudStatusLocal = data["lock"].toBool();
+		if (hudStatusLocal != hudStatus)
+		{
+			hudStatus = hudStatusLocal;
+			emit hudLockChanged(hudStatus);
+		}
+	}
 }
 
 void WSocket::sendMenssage(QString data)
 {
 	sendTextMessage(data);
+	if ( data == "{'action': 'getall'}")
+	{
+		frameData = "";
+	}
 }
 
 void WSocket::sendMessageFromQml(QString data)
 {
 	sendTextMessage(data);
+	if ( data == "{'action': 'getall'}")
+	{
+		frameData = "";
+	}
 }

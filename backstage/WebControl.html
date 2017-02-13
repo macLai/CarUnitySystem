@@ -68,15 +68,24 @@
         	var msg = JSON.parse(evt.data);
         	if (msg['status'] == 'car')
         	{
-        		if (msg['run'] == 'start')
+        		if (msg['run'] == 'stop')
+        		{
+        			isCarRunning = false;
+        			$("#stop").button('toggle');
+        		}
+        		else if (msg['run'] == 'run_crossroad')
         		{
         			isCarRunning = true;
-        			$("#car").bootstrapSwitch('state', true, true);
+        			$("#run_crossroad").button('toggle');
+        		}
+        		else if (msg['run'] == 'run_frontcar')
+        		{
+        			isCarRunning = true;
+        			$("#run_frontcar").button('toggle');
         		}
         		else
         		{
         			isCarRunning = false;
-        			$("#car").bootstrapSwitch('state', false, true);
         		}
         	}
         	else if (msg['status'] == 'allmodes')
@@ -233,17 +242,6 @@
 	</div>
 </div>
 
-<h4>Car Control</h4>
-<div class="row">
-	<div class="col-md-12">
-		<ul class="list-group">
-		  <li class="list-group-item">Driving
-		  	<div style="float:right;margin-top:-7;"><input type="checkbox" name="my-checkbox" id="car" checked /></div>
-		  </li>
-		</ul>
-	</div>
-</div>
-
 <h4>HUD Status Control</h4>
 <div class="row">
 	<div class="col-md-12">
@@ -277,7 +275,7 @@
     <input type="radio" name="options" autocomplete="off"> CrossRoad
   </label>
   <label class="btn btn-default" id="run_frontcar">
-    <input type="radio" name="options" autocomplete="off"> FrontCar Warning
+    <input type="radio" name="options" autocomplete="off"> FrontCar
   </label>
   <label class="btn btn-default" id="auto">
     <input type="radio" name="options" autocomplete="off"> Auto

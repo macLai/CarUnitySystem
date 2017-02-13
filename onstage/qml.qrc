@@ -31,6 +31,7 @@
         <file alias="energymonitor/view0_half.qml">mode/energymonitor/view0_half.qml</file>
         <file alias="energymonitor/view0_quarter.qml">mode/energymonitor/view0_quarter.qml</file>
         <file alias="Audio.png">pic/Audio.png</file>
+        <file alias="opendoor.png">pic/opendoor.png</file>
         <file alias="Audio_1_2.png">pic/Audio_1_2.png</file>
         <file alias="Audio_1_4.png">pic/Audio_1_4.png</file>
         <file alias="BK_L.png">pic/BK_L.png</file>

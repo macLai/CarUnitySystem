@@ -10,8 +10,8 @@ Item {
 
 	Text {
 		text: 'ZhangJiang\nNorth\nRoad'
-		x: 45
-		y: 6
+		x: 52
+		y: 31
 		font.pixelSize: 17
 		font.weight: Font.DemiBold
 		color: "white"
