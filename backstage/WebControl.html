@@ -60,33 +60,50 @@
 	var isOpendoorOn = false;
 	var isEnergyMonitorOn = false;
 	var isDriverinfoOn = false;
+    var isCarAuto = false;
 	$(document).ready(function(e) {
 		$("input[type=\"checkbox\"]").bootstrapSwitch();
 
         var ws = new WebSocket("ws://" + location.host);
     	ws.onmessage = function (evt) {
         	var msg = JSON.parse(evt.data);
+            if (msg['status'] == 'carAuto')
+            {
+                if (msg['run'] == true)
+                {
+                    isCarAuto = true;
+                }
+                else
+                {
+                    isCarAuto = false;
+                }
+            }
         	if (msg['status'] == 'car')
         	{
-        		if (msg['run'] == 'stop')
+                if (isCarAuto)
+                {
+                    $("#run_auto").button('toggle');
+                }
+        		else if (msg['run'] == 'stop')
         		{
-        			isCarRunning = false;
         			$("#stop").button('toggle');
         		}
         		else if (msg['run'] == 'run_crossroad')
         		{
-        			isCarRunning = true;
         			$("#run_crossroad").button('toggle');
         		}
         		else if (msg['run'] == 'run_frontcar')
         		{
-        			isCarRunning = true;
         			$("#run_frontcar").button('toggle');
         		}
-        		else
-        		{
-        			isCarRunning = false;
-        		}
+        		if (msg['status'] == 'car' && (msg['run'] == 'run_crossroad' || msg['run'] == 'run_frontcar'))
+                {
+                    isCarRunning = true;
+                }
+                else if (msg['status'] == 'car' && msg['run'] == 'stop')
+                {
+                    isCarRunning = false;
+                }
         	}
         	else if (msg['status'] == 'allmodes')
         	{
@@ -277,7 +294,7 @@
   <label class="btn btn-default" id="run_frontcar">
     <input type="radio" name="options" autocomplete="off"> FrontCar
   </label>
-  <label class="btn btn-default" id="auto">
+  <label class="btn btn-default" id="run_auto">
     <input type="radio" name="options" autocomplete="off"> Auto
   </label>
 </div>

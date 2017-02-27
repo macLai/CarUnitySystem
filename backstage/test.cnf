@@ -1,0 +1,1 @@
+{'mode_priority': {'opendoor': 7, 'driverinfo': 1, 'camera': 6, 'energymonitor': 1, 'acclda': 8, 'phone': 1, 'navi': 2, 'crossroad': 5, 'audio': 1}, 'device_priority': 'hud|meta|navi'}

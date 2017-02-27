@@ -11,4 +11,8 @@ Item {
 		onStopped: play()
 		fillMode: VideoOutput.PreserveAspectCrop 
 	}
+	Image {
+		anchors.fill: parent
+		source: "qrc:///camera.png"
+	}
 }

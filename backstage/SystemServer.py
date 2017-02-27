@@ -4,7 +4,7 @@ import tornado.web
 import random
 from threading import Timer
 
-DEVICE = ['navi', 'meta', 'hud']
+DEVICE = ['meta', 'navi', 'hud']
 FRAME = {
     'navi': {
         '1': 'Navi1Screen',
@@ -80,6 +80,7 @@ LOCK_HUD = -1
 META_MIN = False
 NAVI_MIN = False
 CAR_RUN = 'stop'
+CAR_AUTO = False
 
 def randomMode():
     pass
@@ -108,9 +109,13 @@ def mode_on(mode, modeOn ):
     if modeOn == 'MODE_ON':
         for i in range(len(ALL_MODE)):
             if MODE[ALL_MODE[i]]['priority'] <= MODE[mode]['priority']:
+                print 'ALL_MODE[i]:' , ALL_MODE[i]
+                print 'mode:' , mode
                 ALL_MODE.insert(i, mode)
                 break
+        ALL_MODE.insert(len(ALL_MODE), mode)
         ALL_MODE = sorted(list(set(ALL_MODE)), key = ALL_MODE.index)
+        print 'ALL_MODE:' , ALL_MODE
     elif modeOn == 'MODE_OFF':
         if mode in ALL_MODE:
             ALL_MODE.remove(mode)
@@ -189,6 +194,17 @@ def mode_on(mode, modeOn ):
     elif LOCK_MAP == 4:
         modeList['navi'].insert(2, 'navi')
     
+    print 'modeList[navi]:' , modeList['navi']
+    print 'modeList[meta]:' , modeList['meta']
+    # priority control
+    if DEVICE.index('navi') > DEVICE.index('meta'):
+        tempModeList = modeList['navi']
+        modeList['navi'] = modeList['meta']
+        modeList['meta'] = tempModeList
+        print 'tempModeList:', tempModeList
+        print 'modeList[navi]:' , modeList['navi']
+        print 'modeList[meta]:' , modeList['meta']
+
     for device in DEVICE:
         ACTIVE_MODE[device]['frame'] = FRAME[device][str(len(modeList[device]))]
         ACTIVE_MODE[device]['mode'] = '|'.join(modeList[device])
@@ -220,6 +236,7 @@ class ChatSocketHandler(tornado.websocket.WebSocketHandler):
         self.write_message(ACTIVE_MODE)
         self.write_message({'status':'allmodes', 'mode':ALL_MODE})
         self.write_message({'status':'car', 'run':CAR_RUN})
+        self.write_message({'status':'carAuto', 'run':CAR_AUTO})
         self.write_message({'status':'displayControl', 'lock':displayControl})
         self.write_message({'status':'hudlock', 'lock':LOCK_HUD>=0})
 
@@ -277,29 +294,48 @@ class WebControlHandler(tornado.web.RequestHandler):
         global LOCK_HUD
         global ALL_MODE
         global CAR_RUN
+        global CAR_AUTO
         action = self.get_argument('action', None)
         if action == 'random':
             randomMode()
             ChatSocketHandler.send_updates(ACTIVE_MODE)
             self.write(ACTIVE_MODE)
         if action == 'run_crossroad':
+            CAR_AUTO = False
+            MapPosHandler.timer_auto_stop()
+            ChatSocketHandler.send_updates({'status':'carAuto', 'run':CAR_AUTO})
             if CAR_RUN == 'run_crossroad':
                 return
             CAR_RUN = 'run_crossroad'
             ChatSocketHandler.send_updates({'status':'car', 'run':'run_crossroad'})
             MapPosHandler.timer_start('run_crossroad')
+            
         if action == 'stop':
+            CAR_AUTO = False
+            MapPosHandler.timer_auto_stop()
+            ChatSocketHandler.send_updates({'status':'carAuto', 'run':CAR_AUTO})
             if CAR_RUN == 'stop':
                 return
             CAR_RUN = 'stop'
             ChatSocketHandler.send_updates({'status':'car', 'run':'stop'})
             MapPosHandler.timer_stop()
+            
         if action == 'run_frontcar':
+            CAR_AUTO = False
+            MapPosHandler.timer_auto_stop()
+            ChatSocketHandler.send_updates({'status':'carAuto', 'run':CAR_AUTO})
             if CAR_RUN == 'run_frontcar':
                 return
             CAR_RUN = 'run_frontcar'
             ChatSocketHandler.send_updates({'status':'car', 'run':'run_frontcar'})
             MapPosHandler.timer_start('run_frontcar')
+            
+        if action == 'run_auto':
+            if CAR_AUTO == True:
+                return
+            CAR_AUTO = True
+            ChatSocketHandler.send_updates({'status':'carAuto', 'run':CAR_AUTO})
+            MapPosHandler.timer_auto_start()
         if action == 'modeon':
             mode = self.get_argument('mode', None)
             mode_on(str(mode), 'MODE_ON')
@@ -317,8 +353,12 @@ class WebControlHandler(tornado.web.RequestHandler):
             self.write(ACTIVE_MODE)
             print ACTIVE_MODE
         if action == 'metamin':
-            META_MIN = True
-            NAVI_MIN = False
+            if DEVICE.index('navi') > DEVICE.index('meta'):
+                META_MIN = False
+                NAVI_MIN = True
+            else:
+                META_MIN = True
+                NAVI_MIN = False
             LOCK_MAP = -1
             mode_on('navi', 'META_MIN')
             ChatSocketHandler.send_updates(ACTIVE_MODE)
@@ -326,8 +366,12 @@ class WebControlHandler(tornado.web.RequestHandler):
             self.write(ACTIVE_MODE)
             ChatSocketHandler.send_updates({'status':'displayControl', 'lock':'metamin'})
         if action == 'navimin':
-            META_MIN = False
-            NAVI_MIN = True
+            if DEVICE.index('navi') > DEVICE.index('meta'):
+                META_MIN = True
+                NAVI_MIN = False
+            else:
+                META_MIN = False
+                NAVI_MIN = True
             LOCK_MAP = -1
             mode_on('navi', 'NAVI_MIN')
             ChatSocketHandler.send_updates(ACTIVE_MODE)
@@ -405,7 +449,7 @@ class MapPosHandler(tornado.websocket.WebSocketHandler):
     ]
 
     t = Timer(3, update_pos)
-    
+    t_auto = Timer(30, update_pos)
 
     def open(self):
         print 'MapPos client opened'
@@ -439,6 +483,38 @@ class MapPosHandler(tornado.websocket.WebSocketHandler):
         cls.t = Timer(3, update_pos)
         cls.t.start()
 
+    CURRENT_POS = 'stop'
+    @classmethod
+    def timer_auto_start(cls):
+        global CAR_RUN
+        print CAR_RUN
+        if cls.CURRENT_POS == 'stop':
+            CAR_RUN = 'stop'
+            cls.timer_stop()
+            ChatSocketHandler.send_updates({'status':'car', 'run':'stop'})
+            cls.CURRENT_POS = 'run_crossroad'
+        elif cls.CURRENT_POS == 'run_crossroad':
+            CAR_RUN = 'run_crossroad'
+            cls.timer_start('run_crossroad')
+            ChatSocketHandler.send_updates({'status':'car', 'run':'run_crossroad'})
+            cls.CURRENT_POS = 'run_frontcar'
+        elif cls.CURRENT_POS == 'run_frontcar':
+            CAR_RUN = 'run_frontcar'
+            cls.timer_start('run_frontcar')
+            ChatSocketHandler.send_updates({'status':'car', 'run':'run_frontcar'})
+            cls.CURRENT_POS = 'stop'
+        cls.t_auto = Timer(30, cls.timer_auto_start)
+        cls.t_auto.start()
+
+    @classmethod
+    def timer_auto_stop(cls):
+        global CAR_RUN
+        cls.CURRENT_POS = 'stop'
+        CAR_RUN = 'stop'
+        cls.timer_stop()
+        ChatSocketHandler.send_updates({'status':'car', 'run':'stop'})
+        cls.t_auto.cancel()
+
     @classmethod
     def timer_stop(cls):
         global POS_NUM
@@ -457,7 +533,24 @@ def make_app():
         (r'/(.*)', tornado.web.StaticFileHandler, {'path': '.'}),
     ])
 
+def readConfig(fileName):
+    global DEVICE
+    global MODE
+    global ALL_MODE
+    file_object = open(fileName)
+    data = file_object.read()
+    info = eval(data)
+    print info
+    DEVICE = info['device_priority'].split('|')
+    for mode in MODE:
+        MODE[mode]['priority'] = info['mode_priority'][mode]
+    print MODE
+    if MODE['navi']['priority'] > MODE['audio']['priority']:
+        ALL_MODE = ['navi', 'audio']
+    mode_on('audio', 'MODE_ON')
+
 if __name__ == '__main__':
+    readConfig('../test.cnf')
     app = make_app()
     app.listen(8888)
     tornado.ioloop.IOLoop.current().start()

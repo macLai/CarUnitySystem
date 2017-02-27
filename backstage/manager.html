@@ -1,0 +1,393 @@
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<link href="bootstrap.min.css" rel="stylesheet">
+<link href="bootstrap-switch.css" rel="stylesheet">
+<script src="jquery.min.js"></script>
+<script src="bootstrap.min.js"></script>
+<script src="bootstrap-switch.js"></script>
+<script src="button.js"></script>
+<!-- <script src="http://cdn.bootcss.com/bootstrap/3.2.0/js/button.js"></script> -->
+
+<script type="text/javascript">
+    var priorityData;
+    function updateScreen(data, status) {
+        var msg = data;//JSON.parse(data);
+        priorityData = msg;
+        var device_priority = msg['device_priority'].split("|");
+        for(var i = 0; i < device_priority.length; i++)
+        {
+            console.log("device_" + device_priority[i] + "_" + (i+1).toString())
+            $("#device_" + device_priority[i] + "_" + (i+1).toString() ).button('toggle');
+        }
+        var mode_priority = msg['mode_priority'];
+        $("#phone_" + mode_priority['phone'] ).button('toggle');
+        $("#camera_" + mode_priority['camera'] ).button('toggle');
+        $("#opendoor_" + mode_priority['opendoor'] ).button('toggle');
+        $("#energymonitor_" + mode_priority['energymonitor'] ).button('toggle');
+        $("#driverinfo_" + mode_priority['driverinfo'] ).button('toggle');
+        $("#acclda_" + mode_priority['acclda'] ).button('toggle');
+        $("#crossroad_" + mode_priority['crossroad'] ).button('toggle');
+        $("#audio_" + mode_priority['audio'] ).button('toggle');
+        $("#navi_" + mode_priority['navi'] ).button('toggle');
+    }
+	$(document).ready(function(e) {
+        $.get('', 
+            {
+                'action': 'getConfigData'
+            }, updateScreen );
+        $('#commit').click( function (e) {
+            console.log(priorityData);
+            priorityData['mode_priority']['phone'] = Number($('#phone label.active')[0].id.split("_")[1]);
+            priorityData['mode_priority']['camera'] = Number($('#camera label.active')[0].id.split("_")[1]);
+            priorityData['mode_priority']['opendoor'] = Number($('#opendoor label.active')[0].id.split("_")[1]);
+            priorityData['mode_priority']['energymonitor'] = Number($('#energymonitor label.active')[0].id.split("_")[1]);
+            priorityData['mode_priority']['driverinfo'] = Number($('#driverinfo label.active')[0].id.split("_")[1]);
+            priorityData['mode_priority']['acclda'] = Number($('#acclda label.active')[0].id.split("_")[1]);
+            priorityData['mode_priority']['crossroad'] = Number($('#crossroad label.active')[0].id.split("_")[1]);
+            priorityData['mode_priority']['audio'] = Number($('#audio label.active')[0].id.split("_")[1]);
+            priorityData['mode_priority']['navi'] = Number($('#navi label.active')[0].id.split("_")[1]);
+
+            var sortTarget = ['navi', 'meta', 'hud'];
+            sortTarget.sort(function(a,b) {
+                return Number($('#device_'+a+' label.active')[0].id.split("_")[2]) - Number($('#device_'+b+' label.active')[0].id.split("_")[2]);
+            });
+            priorityData['device_priority'] = sortTarget.join('|');
+            console.log(priorityData);
+            $.post('',
+                {
+                    'action': 'postPriority',
+                    'data': JSON.stringify(priorityData).toString(),
+
+                }, updateScreen, "json");
+        });
+        $('#restart').click(function (e) {
+            $.post('',
+                {
+                    'action': 'restart',
+
+                });
+        });
+    });
+    
+</script>
+
+<h4>Contents Priority Control</h4>
+<div class="row">
+	<div class="col-md-12">
+		<ul class="list-group">
+          <li class="list-group-item">前車注意
+<div class="btn-group btn-group-sm" id="acclda" data-toggle="buttons" style="float:right;margin-top:-5;">
+  <label class="btn btn-default" id="acclda_1">
+    <input type="radio" name="options" autocomplete="off"> 1
+  </label>
+  <label class="btn btn-default" id="acclda_2">
+    <input type="radio" name="options" autocomplete="off"> 2
+  </label>
+  <label class="btn btn-default" id="acclda_3">
+    <input type="radio" name="options" autocomplete="off"> 3
+  </label>
+  <label class="btn btn-default" id="acclda_4">
+    <input type="radio" name="options" autocomplete="off"> 4
+  </label>
+  <label class="btn btn-default" id="acclda_5">
+    <input type="radio" name="options" autocomplete="off"> 5
+  </label>
+  <label class="btn btn-default" id="acclda_6">
+    <input type="radio" name="options" autocomplete="off"> 6
+  </label>
+  <label class="btn btn-default" id="acclda_7">
+    <input type="radio" name="options" autocomplete="off"> 7
+  </label>
+  <label class="btn btn-default" id="acclda_8">
+    <input type="radio" name="options" autocomplete="off"> 8
+  </label>
+</div>
+          </li>
+          <li class="list-group-item">Open Door
+<div class="btn-group btn-group-sm" id="opendoor" data-toggle="buttons" style="float:right;margin-top:-5;">
+  <label class="btn btn-default" id="opendoor_1">
+    <input type="radio" name="options" autocomplete="off"> 1
+  </label>
+  <label class="btn btn-default" id="opendoor_2">
+    <input type="radio" name="options" autocomplete="off"> 2
+  </label>
+  <label class="btn btn-default" id="opendoor_3">
+    <input type="radio" name="options" autocomplete="off"> 3
+  </label>
+  <label class="btn btn-default" id="opendoor_4">
+    <input type="radio" name="options" autocomplete="off"> 4
+  </label>
+  <label class="btn btn-default" id="opendoor_5">
+    <input type="radio" name="options" autocomplete="off"> 5
+  </label>
+  <label class="btn btn-default" id="opendoor_6">
+    <input type="radio" name="options" autocomplete="off"> 6
+  </label>
+  <label class="btn btn-default" id="opendoor_7">
+    <input type="radio" name="options" autocomplete="off"> 7
+  </label>
+  <label class="btn btn-default" id="opendoor_8">
+    <input type="radio" name="options" autocomplete="off"> 8
+  </label>
+</div>
+          </li>
+          <li class="list-group-item">Back Camera
+<div class="btn-group btn-group-sm" id="camera" data-toggle="buttons" style="float:right;margin-top:-5;">
+  <label class="btn btn-default" id="camera_1">
+    <input type="radio" name="options" autocomplete="off"> 1
+  </label>
+  <label class="btn btn-default" id="camera_2">
+    <input type="radio" name="options" autocomplete="off"> 2
+  </label>
+  <label class="btn btn-default" id="camera_3">
+    <input type="radio" name="options" autocomplete="off"> 3
+  </label>
+  <label class="btn btn-default" id="camera_4">
+    <input type="radio" name="options" autocomplete="off"> 4
+  </label>
+  <label class="btn btn-default" id="camera_5">
+    <input type="radio" name="options" autocomplete="off"> 5
+  </label>
+  <label class="btn btn-default" id="camera_6">
+    <input type="radio" name="options" autocomplete="off"> 6
+  </label>
+  <label class="btn btn-default" id="camera_7">
+    <input type="radio" name="options" autocomplete="off"> 7
+  </label>
+  <label class="btn btn-default" id="camera_8">
+    <input type="radio" name="options" autocomplete="off"> 8
+  </label>
+</div>
+          </li>
+          <li class="list-group-item">交差点注意
+<div class="btn-group btn-group-sm" id="crossroad" data-toggle="buttons" style="float:right;margin-top:-5;">
+  <label class="btn btn-default" id="crossroad_1">
+    <input type="radio" name="options" autocomplete="off"> 1
+  </label>
+  <label class="btn btn-default" id="crossroad_2">
+    <input type="radio" name="options" autocomplete="off"> 2
+  </label>
+  <label class="btn btn-default" id="crossroad_3">
+    <input type="radio" name="options" autocomplete="off"> 3
+  </label>
+  <label class="btn btn-default" id="crossroad_4">
+    <input type="radio" name="options" autocomplete="off"> 4
+  </label>
+  <label class="btn btn-default" id="crossroad_5">
+    <input type="radio" name="options" autocomplete="off"> 5
+  </label>
+  <label class="btn btn-default" id="crossroad_6">
+    <input type="radio" name="options" autocomplete="off"> 6
+  </label>
+  <label class="btn btn-default" id="crossroad_7">
+    <input type="radio" name="options" autocomplete="off"> 7
+  </label>
+  <label class="btn btn-default" id="crossroad_8">
+    <input type="radio" name="options" autocomplete="off"> 8
+  </label>
+</div>
+          </li>
+		  <li class="list-group-item">Phone
+<div class="btn-group btn-group-sm" id="phone" data-toggle="buttons" style="float:right;margin-top:-5;">
+  <label class="btn btn-default" id="phone_1">
+    <input type="radio" name="options" autocomplete="off"> 1
+  </label>
+  <label class="btn btn-default" id="phone_2">
+    <input type="radio" name="options" autocomplete="off"> 2
+  </label>
+  <label class="btn btn-default" id="phone_3">
+    <input type="radio" name="options" autocomplete="off"> 3
+  </label>
+  <label class="btn btn-default" id="phone_4">
+    <input type="radio" name="options" autocomplete="off"> 4
+  </label>
+  <label class="btn btn-default" id="phone_5">
+    <input type="radio" name="options" autocomplete="off"> 5
+  </label>
+  <label class="btn btn-default" id="phone_6">
+    <input type="radio" name="options" autocomplete="off"> 6
+  </label>
+  <label class="btn btn-default" id="phone_7">
+    <input type="radio" name="options" autocomplete="off"> 7
+  </label>
+  <label class="btn btn-default" id="phone_8">
+    <input type="radio" name="options" autocomplete="off"> 8
+  </label>
+</div>
+		  </li>
+		  
+		  
+		  <li class="list-group-item">Energy Monitor
+<div class="btn-group btn-group-sm" id="energymonitor" data-toggle="buttons" style="float:right;margin-top:-5;">
+  <label class="btn btn-default" id="energymonitor_1">
+    <input type="radio" name="options" autocomplete="off"> 1
+  </label>
+  <label class="btn btn-default" id="energymonitor_2">
+    <input type="radio" name="options" autocomplete="off"> 2
+  </label>
+  <label class="btn btn-default" id="energymonitor_3">
+    <input type="radio" name="options" autocomplete="off"> 3
+  </label>
+  <label class="btn btn-default" id="energymonitor_4">
+    <input type="radio" name="options" autocomplete="off"> 4
+  </label>
+  <label class="btn btn-default" id="energymonitor_5">
+    <input type="radio" name="options" autocomplete="off"> 5
+  </label>
+  <label class="btn btn-default" id="energymonitor_6">
+    <input type="radio" name="options" autocomplete="off"> 6
+  </label>
+  <label class="btn btn-default" id="energymonitor_7">
+    <input type="radio" name="options" autocomplete="off"> 7
+  </label>
+  <label class="btn btn-default" id="energymonitor_8">
+    <input type="radio" name="options" autocomplete="off"> 8
+  </label>
+</div>
+		  </li>
+		  <li class="list-group-item">Car Info
+<div class="btn-group btn-group-sm" id="driverinfo" data-toggle="buttons" style="float:right;margin-top:-5;">
+  <label class="btn btn-default" id="driverinfo_1">
+    <input type="radio" name="options" autocomplete="off"> 1
+  </label>
+  <label class="btn btn-default" id="driverinfo_2">
+    <input type="radio" name="options" autocomplete="off"> 2
+  </label>
+  <label class="btn btn-default" id="driverinfo_3">
+    <input type="radio" name="options" autocomplete="off"> 3
+  </label>
+  <label class="btn btn-default" id="driverinfo_4">
+    <input type="radio" name="options" autocomplete="off"> 4
+  </label>
+  <label class="btn btn-default" id="driverinfo_5">
+    <input type="radio" name="options" autocomplete="off"> 5
+  </label>
+  <label class="btn btn-default" id="driverinfo_6">
+    <input type="radio" name="options" autocomplete="off"> 6
+  </label>
+  <label class="btn btn-default" id="driverinfo_7">
+    <input type="radio" name="options" autocomplete="off"> 7
+  </label>
+  <label class="btn btn-default" id="driverinfo_8">
+    <input type="radio" name="options" autocomplete="off"> 8
+  </label>
+</div>
+		  </li>
+          
+          
+          <li class="list-group-item">Audio
+<div class="btn-group btn-group-sm" id="audio" data-toggle="buttons" style="float:right;margin-top:-5;">
+  <label class="btn btn-default" id="audio_1">
+    <input type="radio" name="options" autocomplete="off"> 1
+  </label>
+  <label class="btn btn-default" id="audio_2">
+    <input type="radio" name="options" autocomplete="off"> 2
+  </label>
+  <label class="btn btn-default" id="audio_3">
+    <input type="radio" name="options" autocomplete="off"> 3
+  </label>
+  <label class="btn btn-default" id="audio_4">
+    <input type="radio" name="options" autocomplete="off"> 4
+  </label>
+  <label class="btn btn-default" id="audio_5">
+    <input type="radio" name="options" autocomplete="off"> 5
+  </label>
+  <label class="btn btn-default" id="audio_6">
+    <input type="radio" name="options" autocomplete="off"> 6
+  </label>
+  <label class="btn btn-default" id="audio_7">
+    <input type="radio" name="options" autocomplete="off"> 7
+  </label>
+  <label class="btn btn-default" id="audio_8">
+    <input type="radio" name="options" autocomplete="off"> 8
+  </label>
+</div>
+          </li>
+          <li class="list-group-item">Map
+<div class="btn-group btn-group-sm" id="navi" data-toggle="buttons" style="float:right;margin-top:-5;">
+  <label class="btn btn-default" id="navi_1">
+    <input type="radio" name="options" autocomplete="off"> 1
+  </label>
+  <label class="btn btn-default" id="navi_2">
+    <input type="radio" name="options" autocomplete="off"> 2
+  </label>
+  <label class="btn btn-default" id="navi_3">
+    <input type="radio" name="options" autocomplete="off"> 3
+  </label>
+  <label class="btn btn-default" id="navi_4">
+    <input type="radio" name="options" autocomplete="off"> 4
+  </label>
+  <label class="btn btn-default" id="navi_5">
+    <input type="radio" name="options" autocomplete="off"> 5
+  </label>
+  <label class="btn btn-default" id="navi_6">
+    <input type="radio" name="options" autocomplete="off"> 6
+  </label>
+  <label class="btn btn-default" id="navi_7">
+    <input type="radio" name="options" autocomplete="off"> 7
+  </label>
+  <label class="btn btn-default" id="navi_8">
+    <input type="radio" name="options" autocomplete="off"> 8
+  </label>
+</div>
+          </li>
+		</ul>
+	</div>
+</div>
+
+<h4>Device Priority Control</h4>
+<div class="row">
+	<div class="col-md-12">
+		<ul class="list-group">
+		  <li class="list-group-item">HUD
+<div class="btn-group btn-group-sm" id="device_hud" data-toggle="buttons" style="float:right;margin-top:-5;">
+  <label class="btn btn-default" id="device_hud_1">
+    <input type="radio" name="options" autocomplete="off"> 1
+  </label>
+  <label class="btn btn-default" id="device_hud_2">
+    <input type="radio" name="options" autocomplete="off"> 2
+  </label>
+  <label class="btn btn-default" id="device_hud_3">
+    <input type="radio" name="options" autocomplete="off"> 3
+  </label>
+</div>
+          </li>
+          <li class="list-group-item">META
+<div class="btn-group btn-group-sm" id="device_meta" data-toggle="buttons" style="float:right;margin-top:-5;">
+  <label class="btn btn-default" id="device_meta_1">
+    <input type="radio" name="options" autocomplete="off"> 1
+  </label>
+  <label class="btn btn-default" id="device_meta_2">
+    <input type="radio" name="options" autocomplete="off"> 2
+  </label>
+  <label class="btn btn-default" id="device_meta_3">
+    <input type="radio" name="options" autocomplete="off"> 3
+  </label>
+</div>
+          </li>
+          <li class="list-group-item">NAVI
+<div class="btn-group btn-group-sm" id="device_navi" data-toggle="buttons" style="float:right;margin-top:-5;">
+  <label class="btn btn-default" id="device_navi_1">
+    <input type="radio" name="options" autocomplete="off"> 1
+  </label>
+  <label class="btn btn-default" id="device_navi_2">
+    <input type="radio" name="options" autocomplete="off"> 2
+  </label>
+  <label class="btn btn-default" id="device_navi_3">
+    <input type="radio" name="options" autocomplete="off"> 3
+  </label>
+</div>
+          </li>
+		</ul>
+	</div>
+</div>
+<br/><br/><br/><br/>
+
+<nav class="navbar navbar-default navbar-fixed-bottom">
+  <div class="container">
+    <div style="text-align:center;margin-top:7px;">
+  <button type="button" class="btn btn-warning" id="commit">Commit Config</button>
+    <button type="button" class="btn btn-danger" id="restart">Restart Demo</button>
+    </div>
+  </div>
+</nav>

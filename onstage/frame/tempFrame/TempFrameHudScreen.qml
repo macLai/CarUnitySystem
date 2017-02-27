@@ -25,14 +25,22 @@ Item {
 				if(carStatus == 'stop')
 				{
 					video.source = 'http://localhost:8888/run_stopfront.mp4';
+					wSocket.sendMessageFromQml("{'action': 'modeoff', 'mode': 'crossroad'}");
+					wSocket.sendMessageFromQml("{'action': 'modeoff', 'mode': 'acclda'}");
 				}
 				else if ( carStatus == 'run_crossroad')
 				{
 					video.source = 'http://localhost:8888/run_right.mp4';
+					wSocket.sendMessageFromQml("{'action': 'modeoff', 'mode': 'camera'}");
+					wSocket.sendMessageFromQml("{'action': 'modeoff', 'mode': 'opendoor'}");
+					wSocket.sendMessageFromQml("{'action': 'modeoff', 'mode': 'acclda'}");
 				}
 				else if ( carStatus == 'run_frontcar')
 				{
 					video.source = 'http://localhost:8888/run_frontcareful.mp4';
+					wSocket.sendMessageFromQml("{'action': 'modeoff', 'mode': 'camera'}");
+					wSocket.sendMessageFromQml("{'action': 'modeoff', 'mode': 'opendoor'}");
+					wSocket.sendMessageFromQml("{'action': 'modeoff', 'mode': 'crossroad'}");
 				}
 			}
 			onHudLockChanged: {
@@ -69,6 +77,16 @@ Item {
 
 
 	}
+
+	Rectangle {
+        id: rect
+        width: 579
+        height: 220
+        color: "black"
+        opacity: 0.4
+        x: 373
+        y: 469
+    }
 
 	Image {
 		id: speed

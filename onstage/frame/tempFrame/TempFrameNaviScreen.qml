@@ -54,6 +54,11 @@ Item {
 		objectName: "navi"
 	}
 
+	Loader {
+		id: acclda
+		objectName: "acclda"
+	}
+
 	Rectangle {
         id: rect
         width: 28

@@ -3,7 +3,7 @@ import QtQuick.Controls 1.5
 
 Item {
 	Image {
-		x: 13
+		x: 35
 		y: 16
 		width: 70
 		height: 72

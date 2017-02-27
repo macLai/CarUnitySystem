@@ -60,4 +60,8 @@ Item {
 		id: energymonitor
 		objectName: "energymonitor"
 	}
+	Loader {
+		id: navi
+		objectName: "navi"
+	}
 }
